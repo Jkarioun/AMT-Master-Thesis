@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 
-MIDI_PITCHES = 88
+MIDI_PITCHES = 10
 NUM_PITCHES = MIDI_PITCHES + 6
 BINS_PER_PITCH = 3
 BINS_PER_OCTAVE = BINS_PER_PITCH * 12
@@ -20,4 +20,4 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 
 HARMONIC_RELATIVES = np.array([-19, -12, 0, 12, 19])
 # array to reorder the neurons for the harmonic convolutional layer
-HARMONIC_MAPPING = np.zeros(TOTAL_BIN * HARMONIC_RELATIVES.size)
+HARMONIC_MAPPING = np.zeros((TOTAL_BIN * HARMONIC_RELATIVES.size,1))
