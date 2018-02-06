@@ -5,7 +5,7 @@ from model import *
 if __name__ == '__main__':
     init()
 
-    input_data = np.ones((TOTAL_BIN, 3, 1))
+    input_data = np.ones((1, TOTAL_BIN, 3, 1))
 
     data = tf.placeholder(tf.float16, shape=input_data.shape, name='input')
     model = get_model(data)
