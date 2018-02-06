@@ -1,0 +1,1 @@
+Tensor of the form (Pitch x Time x Filters)

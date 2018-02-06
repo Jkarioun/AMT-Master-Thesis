@@ -1,21 +1,7 @@
-import librosa
-import librosa.display
-import numpy as np
-import matplotlib.pyplot as plt
-
-NUM_PITCHES = 88+6
-BINS_PER_PITCH = 3
-BINS_PER_OCTAVE = BINS_PER_PITCH*12
-MIN_FREQ = librosa.note_to_hz('A0')*(2**(-1/BINS_PER_OCTAVE))
-SR = 16000
-
-CQT_WINDOW = 'hann'
-CQT_HOP_LENGTH = 512
-
-FRAME_PER_SEC = SR/CQT_HOP_LENGTH
+from config import *
 
 def wav_to_CQT(filename):
-	y, sr = librosa.core.load(filename, sr=SR)
+	y, sr = librosa.core.load(filename, sr=SAMPLE_RESOLUTION)
 	print("\n\n\n===========")
 	C = abs(librosa.core.cqt(y, sr=sr, hop_length=CQT_HOP_LENGTH, fmin=MIN_FREQ, n_bins=NUM_PITCHES*BINS_PER_PITCH, bins_per_octave=BINS_PER_OCTAVE, filter_scale=1, norm=1, sparsity=0, window=CQT_WINDOW, scale=True, pad_mode='constant'))
 	print("===========\n\n\n")
