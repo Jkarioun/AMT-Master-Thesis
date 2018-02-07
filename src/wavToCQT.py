@@ -1,4 +1,4 @@
-from config import *
+from src.config import *
 
 
 def wav_to_CQT(filename):

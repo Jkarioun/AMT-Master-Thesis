@@ -1,6 +1,5 @@
-from config import *
-from init import *
-from model import *
+from src.init import *
+from src.model import *
 
 if __name__ == '__main__':
     init()

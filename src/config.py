@@ -22,3 +22,10 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 HARMONIC_RELATIVES = np.array([-19, -12, 0, 12, 19])
 # array to reorder the neurons for the harmonic convolutional layer
 HARMONIC_MAPPING = np.empty(TOTAL_BIN * HARMONIC_RELATIVES.size)
+
+# Paths
+PATH_DEBUG = "data/debug/"
+PATH_PREDICT = "data/predict/"
+PATH_TEST = "data/test/"
+PATH_TRAIN = "data/train/"
+PATH_VISUALISATION = "data/visualisation/"

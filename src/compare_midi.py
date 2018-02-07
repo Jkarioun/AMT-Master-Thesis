@@ -1,5 +1,6 @@
 import pretty_midi as pm
 from PIL import Image
+from src.config import *
 
 def compare_midi(gold_MIDI_path, pred_MIDI_path):
     PIX_PER_PITCH = 15
@@ -55,4 +56,4 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path):
     im.putdata([item for sublist in output for item in sublist])
     im.save('test.PNG')
 
-compare_midi("bug.mid", "bug.mid")
+compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid")

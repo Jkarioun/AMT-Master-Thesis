@@ -1,4 +1,4 @@
-from config import *
+from src.config import *
 
 
 def harmonic_layer(inputs,
