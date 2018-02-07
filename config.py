@@ -7,7 +7,7 @@ import tensorflow.contrib.slim as slim
 
 MIDI_PITCHES = 0
 NUM_PITCHES = MIDI_PITCHES + 3
-BINS_PER_PITCH = 2
+BINS_PER_PITCH = 3
 BINS_PER_OCTAVE = BINS_PER_PITCH * 12
 TOTAL_BIN = NUM_PITCHES * BINS_PER_PITCH
 MIN_FREQ = librosa.note_to_hz('A0') * (2 ** (-1 / BINS_PER_OCTAVE))
@@ -20,4 +20,4 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 
 HARMONIC_RELATIVES = np.array([-19, -12, 0, 12, 19])
 # array to reorder the neurons for the harmonic convolutional layer
-HARMONIC_MAPPING = np.zeros(TOTAL_BIN * HARMONIC_RELATIVES.size)
+HARMONIC_MAPPING = np.empty(TOTAL_BIN * HARMONIC_RELATIVES.size)
