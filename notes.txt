@@ -1,1 +1,7 @@
 Tensor of the form (Pitch x Time x Filters)
+
+
+Dependencies:
+librosa
+pretty-midi
+image

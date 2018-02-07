@@ -2,6 +2,7 @@ import librosa
 import tensorflow as tf
 import librosa.display
 import numpy as np
+import pretty_midi as pm
 import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 
