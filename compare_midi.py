@@ -57,4 +57,6 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path):
     im.save('test.PNG')
 
 
-compare_midi("gold.mid", "pred.mid")
+gold_MID = pm.PrettyMIDI("bug.mid")
+
+#compare_midi("bug.mid", "bug.mid")
