@@ -5,6 +5,7 @@ import numpy as np
 import pretty_midi as pm
 import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
+from PIL import Image
 
 MIDI_PITCHES = 0
 NUM_PITCHES = MIDI_PITCHES + 3
@@ -24,8 +25,8 @@ HARMONIC_RELATIVES = np.array([-19, -12, 0, 12, 19])
 HARMONIC_MAPPING = np.empty(TOTAL_BIN * HARMONIC_RELATIVES.size)
 
 # Paths
-PATH_DEBUG = "data/debug/"
-PATH_PREDICT = "data/predict/"
-PATH_TEST = "data/test/"
-PATH_TRAIN = "data/train/"
-PATH_VISUALISATION = "data/visualisation/"
+PATH_DEBUG = "../data/debug/"
+PATH_PREDICT = "../data/predict/"
+PATH_TEST = "../data/test/"
+PATH_TRAIN = "../data/train/"
+PATH_VISUALISATION = "../data/visualisation/"

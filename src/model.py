@@ -1,4 +1,4 @@
-from src.config import *
+from config import *
 
 
 def harmonic_layer(inputs,
@@ -80,5 +80,5 @@ def conv_net_kelz_modified(inputs):
 
 
 def get_model(input_data):
-    output = conv_net_kelz(input_data)
+    output = conv_net_kelz_modified(input_data)
     return output

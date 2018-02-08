@@ -1,6 +1,23 @@
-import pretty_midi as pm
-from PIL import Image
-from src.config import *
+from config import *
+from init import init
+
+
+def wav_to_CQT(filename):
+    y, sr = librosa.core.load(filename, sr=SAMPLE_RESOLUTION)
+    print("\n\n\n===========")
+    cqt = abs(librosa.core.cqt(y, sr=sr, hop_length=CQT_HOP_LENGTH, fmin=MIN_FREQ, n_bins=NUM_PITCHES * BINS_PER_PITCH,
+                               bins_per_octave=BINS_PER_OCTAVE, filter_scale=1, norm=1, sparsity=0, window=CQT_WINDOW,
+                               scale=True, pad_mode='constant'))
+    print("===========\n\n\n")
+    return cqt, sr
+
+
+def display_CQT(cqt, sr):
+    librosa.display.specshow(librosa.amplitude_to_db(cqt, ref=np.max), sr=sr, x_axis='time', y_axis='cqt_note')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title('Constant-Q power spectrum')
+    plt.show()
+
 
 def compare_midi(gold_MIDI_path, pred_MIDI_path):
     PIX_PER_PITCH = 15
@@ -56,4 +73,9 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path):
     im.putdata([item for sublist in output for item in sublist])
     im.save('test.PNG')
 
-compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid")
+
+if __name__ == '__main__':
+    init()
+    cqt, sr = wav_to_CQT(PATH_DEBUG+"test.wav")
+    display_CQT(cqt, sr)
+    compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid")

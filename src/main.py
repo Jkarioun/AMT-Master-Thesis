@@ -1,5 +1,5 @@
-from src.init import *
-from src.model import *
+from init import *
+from model import *
 
 if __name__ == '__main__':
     init()
