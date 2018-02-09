@@ -11,7 +11,14 @@ if __name__ == '__main__':
 
     init_op = tf.global_variables_initializer()
     with tf.Session() as sess:
+        # Init
         sess.run(init_op)
+
+        # Train
         result = sess.run(model, feed_dict={data: input_data})
-        print(result)
-        print(result.shape)
+
+        # Test
+
+
+        #print(result)
+        #print(result.shape)
