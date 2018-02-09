@@ -95,7 +95,7 @@ def midi_file_to_tensor(filename, onset=False):
 
 if __name__ == '__main__':
     init()
-    # cqt, sr = wav_to_CQT(PATH_DEBUG + "test.wav")
-    # display_CQT(cqt, sr)
-    # compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
+    cqt, sr = wav_to_CQT(PATH_DEBUG + "test.wav")
+    display_CQT(cqt, sr)
+    compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
     midi_file_to_tensor(PATH_DEBUG + "gold.mid", onset=True)
