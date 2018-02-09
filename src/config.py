@@ -6,9 +6,14 @@ import pretty_midi as pm
 import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 from PIL import Image
+import math
 
-MIDI_PITCHES = 0
-NUM_PITCHES = MIDI_PITCHES + 3
+
+PIANO_MIN_PITCH = 21
+PIANO_MAX_PITCH = 108
+PIANO_PITCHES = PIANO_MAX_PITCH - PIANO_MIN_PITCH + 1
+MIDI_PITCHES = 128
+NUM_PITCHES = PIANO_PITCHES + 3
 BINS_PER_PITCH = 3
 BINS_PER_OCTAVE = BINS_PER_PITCH * 12
 TOTAL_BIN = NUM_PITCHES * BINS_PER_PITCH

@@ -19,7 +19,7 @@ def display_CQT(cqt, sr):
     plt.show()
 
 
-def compare_midi(gold_MIDI_path, pred_MIDI_path):
+def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
     PIX_PER_PITCH = 15
     MIN_PITCH = 21
     MAX_PITCH = 108
@@ -71,11 +71,31 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path):
             set_output(output, note, False)
 
     im.putdata([item for sublist in output for item in sublist])
-    im.save('test.PNG')
+    im.save(output_path)
+
+
+def midi_file_to_tensor(filename, onset=False):
+    """ Returns the information of the midi file in the form
+    output[frame][pitch] = onset_during_this_frame if onset else pitch_played_during_this_frame
+    """
+    print("helloooooo")
+    midi = pm.PrettyMIDI(filename)
+
+    frames = math.floor(midi.get_end_time() * FRAME_PER_SEC)
+
+    if onset:
+        output = np.full((frames, PIANO_PITCHES), fill_value=False, dtype=bool)
+        for note in midi.instruments[0].notes:
+            output[math.floor(note.start * FRAME_PER_SEC)][note.pitch-PIANO_MIN_PITCH] = True
+    else:
+        output = midi.get_piano_roll(FRAME_PER_SEC)[PIANO_MIN_PITCH:PIANO_MAX_PITCH + 1, :].T > 0
+
+    return output
 
 
 if __name__ == '__main__':
     init()
-    cqt, sr = wav_to_CQT(PATH_DEBUG+"test.wav")
-    display_CQT(cqt, sr)
-    compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid")
+    # cqt, sr = wav_to_CQT(PATH_DEBUG + "test.wav")
+    # display_CQT(cqt, sr)
+    # compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
+    midi_file_to_tensor(PATH_DEBUG + "gold.mid", onset=True)

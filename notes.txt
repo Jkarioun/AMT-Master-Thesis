@@ -1,5 +1,5 @@
-Tensor of the form (Pitch x Time x Filters)
-
+Input tensor of the form (Batch x Pitch x Time x Filters)
+Output tensor of the form (Time x Pitch)
 
 Dependencies:
 librosa
