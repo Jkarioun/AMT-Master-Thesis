@@ -9,7 +9,7 @@ def wav_to_CQT(filename):
                                bins_per_octave=BINS_PER_OCTAVE, filter_scale=1, norm=1, sparsity=0, window=CQT_WINDOW,
                                scale=True, pad_mode='constant'))
     print("===========\n\n\n")
-    return cqt, sr
+    return cqt.T, sr
 
 
 def display_CQT(cqt, sr):

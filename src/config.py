@@ -29,11 +29,11 @@ HARMONIC_RELATIVES = np.array([1/3, 1/2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # Paths
-PATH_DEBUG = "../data/debug/"
-PATH_PREDICT = "../data/predict/"
-PATH_TEST = "../data/test/"
-PATH_TRAIN = "../data/train/"
-PATH_VISUALISATION = "../data/visualisation/"
+PATH_DEBUG = "./data/debug/"
+PATH_PREDICT = "./data/predict/"
+PATH_TEST = "./data/test/"
+PATH_TRAIN = "./data/train/"
+PATH_VISUALISATION = "./data/visualisation/"
 
 # Model parameters
 DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.1)

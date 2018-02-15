@@ -59,8 +59,6 @@ def conv_net_kelz(inputs):
         net = slim.fully_connected(net, 512, scope='fc5')
         net = slim.dropout(net, 0.5, scope='dropout5')
 
-        net = slim.fully_connected(net, 88, scope='fc6')
-
         net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6')
 
         return net
@@ -92,13 +90,23 @@ def conv_net_kelz_modified(inputs):
         net = slim.fully_connected(net, 512, scope='fc5')
         net = slim.dropout(net, 0.5, scope='dropout5')
 
-        net = slim.fully_connected(net, 88, activation_fn=tf.nn.softmax, scope='fc6')
+        net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6')
 
         return net
 
 
-def get_model(input_data):
+def get_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
     # output = conv_net_kelz(input_data)
+    # batch x time x 88
     output = conv_net_kelz_modified(input_data)
 
-    return output
+    # loss
+    loss = tf.reduce_mean(tf.square(ground_truth - output))
+
+    # optimizer
+    optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
+
+    # objective
+    train = optimizer.minimize(loss)
+
+    return output > 0.5, train
