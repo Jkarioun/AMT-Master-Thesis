@@ -11,14 +11,9 @@ if __name__ == '__main__':
     # examples
     example_data, _ = wav_to_CQT(PATH_DEBUG + "example.wav")
     example_data = np.reshape(example_data, [1, -1, TOTAL_BIN, 1])
-    example_ground_truth = [midi_file_to_tensor(PATH_DEBUG + "example.mid")[:]]
-    print(example_data.shape)
-    print(example_ground_truth[0].shape)
-    plt.imshow(example_data[0,:,:,0])
-    plt.show()
-    plt.imshow(example_ground_truth[0,:,:])
-    plt.show()
-    input()
+    example_ground_truth = np.zeros((1, example_data.shape[1]-6, example_data.shape[2]))
+    intermediary_variable = midi_file_to_tensor(PATH_DEBUG + "example.mid")
+    example_ground_truth[0, 3:intermediary_variable.shape[0]+3, :intermediary_variable.shape[1]] = intermediary_variable
 
     model, train = get_model(data, ground_truth)
 
@@ -33,12 +28,9 @@ if __name__ == '__main__':
             sess.run(init_op)
 
             # Train
-            for _ in range(1):
+            for _ in range(100):
                 result = sess.run(train, feed_dict={data: example_data, ground_truth: example_ground_truth})
 
-            print(result.shape)
-            plt.imshow(result[0, :, :])
-            plt.show()
             # Test
 
             # print(result)
