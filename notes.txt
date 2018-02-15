@@ -1,7 +1,11 @@
-Input tensor of the form (Batch x Pitch x Time x Filters)
+Input tensor of the form (Batch x Time x Pitch x Filters)
 Output tensor of the form (Time x Pitch)
 
 Dependencies:
 librosa
 pretty-midi
 image
+
+
+todo :
+étendre le base temporelle comme wavnet

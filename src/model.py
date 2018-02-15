@@ -1,21 +1,34 @@
 from config import *
 
 
+def harmonic_mapping(i, bins_per_octave, OOV_pitch):
+    base_position = i // CONV_SIZE
+    relative_position = round(math.log(HARMONIC_RELATIVES[i % CONV_SIZE], 2)*bins_per_octave)
+    ret = base_position + relative_position
+    return ret if 0 <= ret < OOV_pitch else OOV_pitch
+
+
 def harmonic_layer(inputs,
                    num_outputs,
                    normalizer_fn=None,
-                   scope=None):
-    padding = tf.constant([[0, 0], [0, 1], [0, 0], [0, 0]])
+                   scope=None,
+                   bins_per_octave=BINS_PER_OCTAVE):
+    # Add an OOV pitch for zero padding (used during reordering)
+    padding = tf.constant([[0, 0], [0, 0], [0, 1], [0, 0]])
     padded = tf.pad(inputs, padding, 'CONSTANT')
 
-    reordering_indices = [[[i, int(j)] for j in HARMONIC_MAPPING] for i in range(inputs.shape[0])]
-
+    # Copying (up to CONV_SIZE time) and reordering the data to use a conventional convolutive kernel
+    reordering_indices = np.empty([padded.shape[0], padded.shape[1], inputs.shape[2] * CONV_SIZE, 3], dtype=int)
+    for i in range(padded.shape[0]):
+        for j in range(padded.shape[1]):
+            for k in range(inputs.shape[2] * CONV_SIZE):
+                reordering_indices[i, j, k] = [i, j, harmonic_mapping(k, bins_per_octave, inputs.shape[2])]
     reordered = tf.gather_nd(padded, indices=reordering_indices, name='Reordering')
 
-    output = slim.conv2d(reordered, num_outputs=num_outputs, kernel_size=[5, 3], stride=[5, 1], padding='VALID',
+    output = slim.conv2d(reordered, num_outputs=num_outputs, kernel_size=[3, CONV_SIZE], stride=[1, CONV_SIZE],
+                         padding='VALID',
                          scope=scope,
                          normalizer_fn=normalizer_fn)
-    print(output)
     return output
 
 
@@ -50,7 +63,7 @@ def conv_net_kelz(inputs):
 
         net = slim.fully_connected(net, 88, scope='fc6')
 
-        net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid,  scope='fc6')
+        net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6')
 
         return net
 
@@ -62,13 +75,14 @@ def conv_net_kelz_modified(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        net = harmonic_layer(inputs, num_outputs=32, scope='conv1')
+        net = harmonic_layer(inputs, num_outputs=32, scope='conv1', bins_per_octave=BINS_PER_OCTAVE)
 
-        net = harmonic_layer(net, num_outputs=32, scope='conv2', normalizer_fn=slim.batch_norm)
+        net = harmonic_layer(net, num_outputs=32, scope='conv2', normalizer_fn=slim.batch_norm,
+                             bins_per_octave=BINS_PER_OCTAVE)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2')
         net = slim.dropout(net, 0.25, scope='dropout2')
 
-        net = harmonic_layer(net, 64, scope='conv3')
+        net = harmonic_layer(net, 64, scope='conv3', bins_per_octave=BINS_PER_OCTAVE / 2)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3')
         net = slim.dropout(net, 0.25, scope='dropout3')
 
@@ -80,13 +94,13 @@ def conv_net_kelz_modified(inputs):
         net = slim.fully_connected(net, 512, scope='fc5')
         net = slim.dropout(net, 0.5, scope='dropout5')
 
-        net = slim.fully_connected(net, 88, activation_fn=tf.nn.softmax,  scope='fc6')
+        net = slim.fully_connected(net, 88, activation_fn=tf.nn.softmax, scope='fc6')
 
         return net
 
 
 def get_model(input_data):
-    #output = conv_net_kelz(input_data)
+    # output = conv_net_kelz(input_data)
     output = conv_net_kelz_modified(input_data)
 
     return output
