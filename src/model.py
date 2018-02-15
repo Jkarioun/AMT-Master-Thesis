@@ -96,12 +96,13 @@ def conv_net_kelz_modified(inputs):
 
 
 def get_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
-    # output = conv_net_kelz(input_data)
+    #output = conv_net_kelz(input_data)
     # batch x time x 88
     output = conv_net_kelz_modified(input_data)
 
     # loss
     loss = tf.reduce_mean(tf.square(ground_truth - output))
+    loss = tf.losses.log_loss(ground_truth, output)
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
@@ -109,4 +110,4 @@ def get_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
     # objective
     train = optimizer.minimize(loss)
 
-    return output > 0.5, train
+    return output, train, loss

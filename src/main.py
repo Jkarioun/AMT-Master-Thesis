@@ -15,21 +15,32 @@ if __name__ == '__main__':
     intermediary_variable = midi_file_to_tensor(PATH_DEBUG + "example.mid")
     example_ground_truth[0, 3:intermediary_variable.shape[0]+3, :intermediary_variable.shape[1]] = intermediary_variable
 
-    model, train = get_model(data, ground_truth)
+    #example_ground_truth = np.zeros((1, example_data.shape[1], example_data.shape[2]))
+    #intermediary_variable = midi_file_to_tensor(PATH_DEBUG + "example.mid")
+    #example_ground_truth[0, :intermediary_variable.shape[0], :intermediary_variable.shape[1]] = intermediary_variable
+
+    model, train, loss = get_model(data, ground_truth)
 
     init_op = tf.global_variables_initializer()
 
     saver = tf.train.Saver()
 
+    TRAINING = True
+
+    super_path = "./tmp/ours2.ckpt"
+
     # Train
-    if True:
+    if TRAINING:
         with tf.Session() as sess:
             # Init
             sess.run(init_op)
 
+            #saver.restore(sess, "./tmp/kelz.ckpt")
             # Train
-            for _ in range(100):
-                result = sess.run(train, feed_dict={data: example_data, ground_truth: example_ground_truth})
+            for i in range(1000):
+                result, train_loss = sess.run([train, loss], feed_dict={data: example_data, ground_truth: example_ground_truth})
+                print("Iteration %d" % i)
+                print(train_loss)
 
             # Test
 
@@ -37,9 +48,18 @@ if __name__ == '__main__':
             # print(result.shape)
 
             # Save
-            saver.save(sess, "./tmp/model.ckpt")
+            saver.save(sess, super_path)
 
     # Test
-    if False:
+    else:
         with tf.Session() as sess:
-            saver.restore(sess, "./tmp/model.ckpt")
+            saver.restore(sess, super_path)
+
+            result = sess.run(model, feed_dict={data: example_data})
+            np.set_printoptions(threshold=np.nan)
+            print(result)
+            plt.imshow(result[0].T)
+            plt.show()
+
+            plt.imshow(example_ground_truth[0].T)
+            plt.show()
