@@ -3,7 +3,7 @@ from config import *
 
 def harmonic_mapping(i, bins_per_octave, OOV_pitch):
     base_position = i // CONV_SIZE
-    relative_position = round(math.log(HARMONIC_RELATIVES[i % CONV_SIZE], 2)*bins_per_octave)
+    relative_position = round(math.log(HARMONIC_RELATIVES[i % CONV_SIZE], 2) * bins_per_octave)
     ret = base_position + relative_position
     return ret if 0 <= ret < OOV_pitch else OOV_pitch
 
@@ -18,12 +18,10 @@ def harmonic_layer(inputs,
     padded = tf.pad(inputs, padding, 'CONSTANT')
 
     # Copying (up to CONV_SIZE time) and reordering the data to use a conventional convolutive kernel
-    reordering_indices = np.empty([padded.shape[0], padded.shape[1], inputs.shape[2] * CONV_SIZE, 3], dtype=int)
-    for i in range(padded.shape[0]):
-        for j in range(padded.shape[1]):
-            for k in range(inputs.shape[2] * CONV_SIZE):
-                reordering_indices[i, j, k] = [i, j, harmonic_mapping(k, bins_per_octave, inputs.shape[2])]
-    reordered = tf.gather_nd(padded, indices=reordering_indices, name='Reordering')
+    pitch_first = tf.transpose(padded, [2, 0, 1, 3])
+    reordering_indices = [[harmonic_mapping(i, bins_per_octave, int(inputs.shape[2]))] for i in range(inputs.shape[2] * CONV_SIZE)]
+    reordered_pitch_first = tf.gather_nd(pitch_first, indices=reordering_indices, name='Reordering')
+    reordered = tf.transpose(reordered_pitch_first, [1, 2, 0, 3])
 
     output = slim.conv2d(reordered, num_outputs=num_outputs, kernel_size=[3, CONV_SIZE], stride=[1, CONV_SIZE],
                          padding='VALID',
