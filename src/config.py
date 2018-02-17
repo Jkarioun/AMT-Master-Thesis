@@ -14,7 +14,7 @@ ANALYSIS_UPPER_PITCH = 0  # supplementary pitches for harmonics
 PIANO_PITCHES = PIANO_MAX_PITCH - PIANO_MIN_PITCH + 1
 MIDI_PITCHES = 128
 NUM_PITCHES = PIANO_PITCHES + ANALYSIS_UPPER_PITCH
-BINS_PER_PITCH = 1
+BINS_PER_PITCH = 4
 BINS_PER_OCTAVE = BINS_PER_PITCH * 12
 TOTAL_BIN = NUM_PITCHES * BINS_PER_PITCH
 MIN_FREQ = librosa.note_to_hz('A0') * (2 ** (-1 / BINS_PER_OCTAVE))
@@ -29,7 +29,7 @@ HARMONIC_RELATIVES = np.array([1/3, 1/2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # Paths
-PATH_DEBUG = "./data/debug/"
+PATH_DEBUG = "../data/debug/"
 PATH_PREDICT = "./data/predict/"
 PATH_TEST = "./data/test/"
 PATH_TRAIN = "./data/train/"
