@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     saver = tf.train.Saver()
 
-    TRAINING = True
+    TRAINING = False
 
     super_path = "./tmp/ours2.ckpt"
 

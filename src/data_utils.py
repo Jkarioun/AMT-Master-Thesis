@@ -89,6 +89,13 @@ def midi_file_to_tensor(filename, onset=False):
     return output
 
 
+def next_batch(i):
+    """ Returns the next batch for training.
+    """
+    np.random.seed(i)
+    tf.random_seed.set_random_seed(i)
+
+
 if __name__ == '__main__':
     init()
     cqt, sr = wav_to_CQT(PATH_DEBUG + "test.wav")

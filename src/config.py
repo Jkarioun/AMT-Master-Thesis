@@ -34,6 +34,7 @@ PATH_PREDICT = "./data/predict/"
 PATH_TEST = "./data/test/"
 PATH_TRAIN = "./data/train/"
 PATH_VISUALISATION = "./data/visualisation/"
+PATH_MAPS = "./data/MAPS/"
 
 # Model parameters
 DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.01)
