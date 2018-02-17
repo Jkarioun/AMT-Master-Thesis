@@ -9,3 +9,13 @@ image
 
 todo :
 étendre le base temporelle comme wavnet
+
+
+Partial training :
+    optimizer = tf.train.AdagradOptimzer(0.01)
+    first_train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                         "scope/prefix/for/first/vars")
+    first_train_op = optimizer.minimize(cost, var_list=first_train_vars)
+    second_train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                          "scope/prefix/for/second/vars")
+    second_train_op = optimizer.minimize(cost, var_list=second_train_vars)

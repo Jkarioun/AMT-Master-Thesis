@@ -14,7 +14,7 @@ def harmonic_layer(inputs,
                    scope=None,
                    bins_per_octave=BINS_PER_OCTAVE):
     # Add an OOV pitch for zero padding (used during reordering)
-    padding = tf.constant([[0, 0], [0, 0], [0, 1], [0, 0]])
+    padding = tf.constant([[0, 0], [1, 1], [0, 1], [0, 0]])
     padded = tf.pad(inputs, padding, 'CONSTANT')
 
     # Copying (up to CONV_SIZE time) and reordering the data to use a conventional convolutive kernel
@@ -96,7 +96,7 @@ def conv_net_kelz_modified(inputs):
 
 
 def get_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
-    #output = conv_net_kelz(input_data)
+    # output = conv_net_kelz(input_data)
     # batch x time x 88
     output = conv_net_kelz_modified(input_data)
 
