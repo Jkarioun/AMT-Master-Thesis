@@ -39,7 +39,7 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 TRAINING = True
 TRAIN_FROM_LAST = True
 super_path = "../tmp/dummy.ckpt"
-RANDOM_DEBUG = 300
+RANDOM_DEBUG = 25
 
 # Paths
 PATH_DEBUG = "../data/debug/"
@@ -48,8 +48,8 @@ PATH_TEST = "../data/test/"
 PATH_TRAIN = "../data/train/"
 PATH_VISUALISATION = "../data/visualisation/"
 PATH_MAPS = "../data/MAPS/"
-NON_MUS_PATHS = []
-MUS_PATHS = []
+TRAIN_PATHS = []
+TEST_PATHS = []
 
 # Model parameters
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.01)
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.001)

@@ -100,6 +100,10 @@ def next_batch(i, train=True, onset=False):
         data_batch = np.concatenate((data_batch, inputs))
         ground_truth_batch = np.concatenate((ground_truth_batch, outputs))
 
+    if data_batch.shape[0] > 10000:
+        data_batch = data_batch[:10000]
+        ground_truth_batch = ground_truth_batch[:10000]
+
     return [data_batch], [ground_truth_batch]
 
 
@@ -107,9 +111,9 @@ def util_next_batch(train=True, onset=False):
     """ Returns the next batch for training.
     """
     if train:
-        pair = NON_MUS_PATHS[np.random.randint(0, len(NON_MUS_PATHS))]
+        pair = TRAIN_PATHS[np.random.randint(0, len(TRAIN_PATHS))]
     else:
-        pair = MUS_PATHS[np.random.randint(0, len(MUS_PATHS))]
+        pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
     with ZipFile(pair[0]) as zipfile:
         # input
         print(pair[0]+"   "+pair[1])

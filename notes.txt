@@ -5,6 +5,7 @@ Dependencies:
 librosa
 pretty-midi
 image
+soundfile
 
 
 todo :

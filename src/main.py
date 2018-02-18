@@ -24,7 +24,7 @@ if __name__ == '__main__':
             if TRAIN_FROM_LAST:
                 saver.restore(sess, super_path)
             # Train
-            for i in range(100):
+            for i in range(20):
                 data_batch, ground_truth_batch = next_batch(i + RANDOM_DEBUG, train=True, onset=False)
                 result, train_loss, result_mod, train_loss_mod = sess.run([train, loss, train_mod, loss_mod],
                                                                           feed_dict={data: data_batch,
@@ -33,6 +33,10 @@ if __name__ == '__main__':
                 print("kelz: " + str(train_loss))
                 print("mod:  " + str(train_loss_mod))
                 print("ratio: " + str(train_loss_mod / train_loss))
+
+                if i % 10 == 0:
+                    # Save
+                    saver.save(sess, super_path)
 
             # Save
             saver.save(sess, super_path)
@@ -43,11 +47,6 @@ if __name__ == '__main__':
 
         i = 5
         data_batch, ground_truth_batch = next_batch(i, train=False, onset=False)
-        print(data_batch.shape)
-        while data_batch.shape[1] > 4000:
-            i += 1
-            data_batch, ground_truth_batch = next_batch(i, train=False, onset=False)
-            print(data_batch.shape)
 
         result, train_loss, result_mod, train_loss_mod = sess.run([model, loss, model_mod, loss_mod],
                                                                   feed_dict={data: data_batch,
@@ -60,3 +59,4 @@ if __name__ == '__main__':
         plt.show()
         print("kelz: " + str(train_loss))
         print("mod: " + str(train_loss_mod))
+
