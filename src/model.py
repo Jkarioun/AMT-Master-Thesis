@@ -39,15 +39,12 @@ def conv_net_kelz(inputs):
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
         net = slim.conv2d(inputs, 32, [3, 3], scope='conv1')
-        print(net)
         net = slim.conv2d(
             net, 32, [3, 3], scope='conv2', normalizer_fn=slim.batch_norm)
-        print(net)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2')
         net = slim.dropout(net, 0.25, scope='dropout2')
 
         net = slim.conv2d(net, 64, [3, 3], scope='conv3')
-        print(net)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3')
         net = slim.dropout(net, 0.25, scope='dropout3')
 
@@ -71,34 +68,35 @@ def conv_net_kelz_modified(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        net = harmonic_layer(inputs, num_outputs=32, scope='conv1', bins_per_octave=BINS_PER_OCTAVE)
+        net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
 
-        net = harmonic_layer(net, num_outputs=32, scope='conv2', normalizer_fn=slim.batch_norm,
+        net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
                              bins_per_octave=BINS_PER_OCTAVE)
-        net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2')
-        net = slim.dropout(net, 0.25, scope='dropout2')
+        net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2_mod')
+        net = slim.dropout(net, 0.25, scope='dropout2_mod')
 
-        net = harmonic_layer(net, 64, scope='conv3', bins_per_octave=BINS_PER_OCTAVE / 2)
-        net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3')
-        net = slim.dropout(net, 0.25, scope='dropout3')
+        net = harmonic_layer(net, 64, scope='conv3_mod', bins_per_octave=BINS_PER_OCTAVE / 2)
+        net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3_mod')
+        net = slim.dropout(net, 0.25, scope='dropout3_mod')
 
         # Flatten while preserving batch and time dimensions.
         dims = tf.shape(net)
         net = tf.reshape(net, (dims[0], dims[1],
-                               net.shape[2].value * net.shape[3].value), 'flatten4')
+                               net.shape[2].value * net.shape[3].value), 'flatten4_mod')
 
-        net = slim.fully_connected(net, 512, scope='fc5')
-        net = slim.dropout(net, 0.5, scope='dropout5')
+        net = slim.fully_connected(net, 512, scope='fc5_mod')
+        net = slim.dropout(net, 0.5, scope='dropout5_mod')
 
-        net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6')
+        net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6_mod')
 
         return net
 
 
-def get_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
-    # output = conv_net_kelz(input_data)
-    # batch x time x 88
-    output = conv_net_kelz_modified(input_data)
+def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS):
+    if kelz:
+        output = conv_net_kelz(input_data)
+    else:
+        output = conv_net_kelz_modified(input_data)
 
     # loss
     loss = tf.reduce_mean(tf.square(ground_truth - output))

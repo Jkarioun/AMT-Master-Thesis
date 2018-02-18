@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 from PIL import Image
 import math
+from zipfile import ZipFile
+import os
+import io
+import soundfile as sf
+
+
 
 PIANO_MIN_PITCH = 21
 PIANO_MAX_PITCH = 108
@@ -28,13 +34,22 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 HARMONIC_RELATIVES = np.array([1/3, 1/2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
+
+# debug parameters
+TRAINING = True
+TRAIN_FROM_LAST = True
+super_path = "../tmp/dummy.ckpt"
+RANDOM_DEBUG = 300
+
 # Paths
 PATH_DEBUG = "../data/debug/"
-PATH_PREDICT = "./data/predict/"
-PATH_TEST = "./data/test/"
-PATH_TRAIN = "./data/train/"
-PATH_VISUALISATION = "./data/visualisation/"
-PATH_MAPS = "./data/MAPS/"
+PATH_PREDICT = "../data/predict/"
+PATH_TEST = "../data/test/"
+PATH_TRAIN = "../data/train/"
+PATH_VISUALISATION = "../data/visualisation/"
+PATH_MAPS = "../data/MAPS/"
+NON_MUS_PATHS = []
+MUS_PATHS = []
 
 # Model parameters
 DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.01)

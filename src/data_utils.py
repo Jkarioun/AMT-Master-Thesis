@@ -2,14 +2,16 @@ from config import *
 from init import init
 
 
-def wav_to_CQT(filename):
-    y, sr = librosa.core.load(filename, sr=SAMPLE_RESOLUTION)
-    print("\n\n\n===========")
+def wav_to_CQT(file):
+    tmp = io.BytesIO(file.read())
+    y, sr = sf.read(tmp)
+    y = librosa.core.to_mono(y.T)
+    y = librosa.core.resample(y, orig_sr=sr, target_sr=SAMPLE_RESOLUTION)
+    sr = SAMPLE_RESOLUTION
     cqt = abs(librosa.core.cqt(y, sr=sr, hop_length=CQT_HOP_LENGTH, fmin=MIN_FREQ, n_bins=NUM_PITCHES * BINS_PER_PITCH,
                                bins_per_octave=BINS_PER_OCTAVE, filter_scale=1, norm=1, sparsity=0, window=CQT_WINDOW,
                                scale=True, pad_mode='constant'))
-    print("===========\n\n\n")
-    return cqt.T, sr
+    return cqt, sr
 
 
 def display_CQT(cqt, sr):
@@ -74,11 +76,11 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
     im.save(output_path)
 
 
-def midi_file_to_tensor(filename, onset=False):
+def midi_file_to_tensor(file, onset=False):
     """ Returns the information of the midi file in the form
     output[frame,pitch] = onset_during_this_frame if onset else pitch_played_during_this_frame
     """
-    midi = pm.PrettyMIDI(filename)
+    midi = pm.PrettyMIDI(io.BytesIO(file.read()))
     frames = math.floor(midi.get_end_time() * FRAME_PER_SEC)
     if onset:
         output = np.full((frames, PIANO_PITCHES), fill_value=False, dtype=bool)
@@ -89,16 +91,45 @@ def midi_file_to_tensor(filename, onset=False):
     return output
 
 
-def next_batch(i):
+def next_batch(i, train=True, onset=False):
+    np.random.seed(i)
+    tf.set_random_seed(i)
+    data_batch, ground_truth_batch = util_next_batch(train=train, onset=onset)
+    while data_batch.shape[0] < 1000:
+        inputs, outputs = util_next_batch(train=train, onset=onset)
+        data_batch = np.concatenate((data_batch, inputs))
+        ground_truth_batch = np.concatenate((ground_truth_batch, outputs))
+
+    return [data_batch], [ground_truth_batch]
+
+
+def util_next_batch(train=True, onset=False):
     """ Returns the next batch for training.
     """
-    np.random.seed(i)
-    tf.random_seed.set_random_seed(i)
+    if train:
+        pair = NON_MUS_PATHS[np.random.randint(0, len(NON_MUS_PATHS))]
+    else:
+        pair = MUS_PATHS[np.random.randint(0, len(MUS_PATHS))]
+    with ZipFile(pair[0]) as zipfile:
+        # input
+        print(pair[0]+"   "+pair[1])
+        data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
+        data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+        # expected output
+        unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"), onset=onset)
+        ground_truth_batch = np.zeros((data_batch.shape[0], PIANO_PITCHES))
+        ground_truth_batch[:unpadded_tensor.shape[0], :unpadded_tensor.shape[1]] = unpadded_tensor
+    return data_batch, ground_truth_batch
 
 
 if __name__ == '__main__':
     init()
-    cqt, sr = wav_to_CQT(PATH_DEBUG + "test.wav")
-    display_CQT(cqt, sr)
+    with ZipFile("../data/MAPS/MAPS_AkPnBcht_1.zip") as zipfile:
+        cqt, sr = wav_to_CQT(zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.wav"))
+        display_CQT(cqt, sr)
+
+        midi_tensor = midi_file_to_tensor(zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"), onset=False)
+        plt.imshow(midi_tensor)
+        plt.show()
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
-    midi_file_to_tensor(PATH_DEBUG + "gold.mid", onset=True)
+

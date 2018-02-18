@@ -8,22 +8,12 @@ if __name__ == '__main__':
     data = tf.placeholder(tf.float32, shape=[None, None, TOTAL_BIN, 1], name='input')
     ground_truth = tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES])
 
-    # examples
-    example_data, _ = wav_to_CQT(PATH_DEBUG + "example.wav")
-    example_data = np.reshape(example_data, [1, -1, TOTAL_BIN, 1])
-    intermediary_variable = midi_file_to_tensor(PATH_DEBUG + "example.mid")
-    example_ground_truth = np.zeros((1, example_data.shape[1], PIANO_PITCHES))
-    example_ground_truth[0, :intermediary_variable.shape[0], :intermediary_variable.shape[1]] = intermediary_variable
-
-    model, train, loss = get_model(data, ground_truth)
+    model, train, loss = get_model(data, ground_truth, kelz=True)
+    model_mod, train_mod, loss_mod = get_model(data, ground_truth, kelz=False)
 
     init_op = tf.global_variables_initializer()
 
     saver = tf.train.Saver()
-
-    TRAINING = False
-
-    super_path = "../tmp/dummy.ckpt"
 
     # Train
     if TRAINING:
@@ -31,18 +21,18 @@ if __name__ == '__main__':
             # Init
             sess.run(init_op)
 
-            saver.restore(sess, super_path)
+            if TRAIN_FROM_LAST:
+                saver.restore(sess, super_path)
             # Train
             for i in range(100):
-                result, train_loss = sess.run([train, loss],
-                                              feed_dict={data: example_data, ground_truth: example_ground_truth})
-                print("Iteration %d" % i)
-                print(train_loss)
-
-            # Test
-
-            # print(result)
-            # print(result.shape)
+                data_batch, ground_truth_batch = next_batch(i + RANDOM_DEBUG, train=True, onset=False)
+                result, train_loss, result_mod, train_loss_mod = sess.run([train, loss, train_mod, loss_mod],
+                                                                          feed_dict={data: data_batch,
+                                                                                     ground_truth: ground_truth_batch})
+                print("Iteration %d" % (i + 1))
+                print("kelz: " + str(train_loss))
+                print("mod:  " + str(train_loss_mod))
+                print("ratio: " + str(train_loss_mod / train_loss))
 
             # Save
             saver.save(sess, super_path)
@@ -51,11 +41,22 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         saver.restore(sess, super_path)
 
-        result = sess.run(model, feed_dict={data: example_data})
-        np.set_printoptions(threshold=np.nan)
-        print(result)
-        plt.imshow(result[0].T)
-        plt.show()
+        i = 5
+        data_batch, ground_truth_batch = next_batch(i, train=False, onset=False)
+        print(data_batch.shape)
+        while data_batch.shape[1] > 4000:
+            i += 1
+            data_batch, ground_truth_batch = next_batch(i, train=False, onset=False)
+            print(data_batch.shape)
 
-        #plt.imshow(example_ground_truth[0].T)
-        #plt.show()
+        result, train_loss, result_mod, train_loss_mod = sess.run([model, loss, model_mod, loss_mod],
+                                                                  feed_dict={data: data_batch,
+                                                                             ground_truth: ground_truth_batch})
+        plt.imshow(result[0].T, aspect='auto')
+        plt.title("Kelz")
+        plt.show()
+        plt.imshow(result_mod[0].T, aspect='auto')
+        plt.title("Mod")
+        plt.show()
+        print("kelz: " + str(train_loss))
+        print("mod: " + str(train_loss_mod))
