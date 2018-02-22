@@ -11,7 +11,11 @@ from zipfile import ZipFile
 import os
 import io
 import soundfile as sf
+import logging
 
+
+logging.basicConfig(filename='../logs/trace.log',level=logging.DEBUG,\
+      format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 
 PIANO_MIN_PITCH = 21
@@ -39,7 +43,7 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 TRAINING = True
 TRAIN_FROM_LAST = True
 super_path = "../tmp/dummy.ckpt"
-RANDOM_DEBUG = 25
+RANDOM_DEBUG = 5000
 
 # Paths
 PATH_DEBUG = "../data/debug/"
@@ -52,4 +56,4 @@ TRAIN_PATHS = []
 TEST_PATHS = []
 
 # Model parameters
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.001)
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0001)

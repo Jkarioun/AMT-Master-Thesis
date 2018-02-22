@@ -6,6 +6,7 @@ librosa
 pretty-midi
 image
 soundfile
+matplotlib
 
 
 todo :

@@ -100,9 +100,9 @@ def next_batch(i, train=True, onset=False):
         data_batch = np.concatenate((data_batch, inputs))
         ground_truth_batch = np.concatenate((ground_truth_batch, outputs))
 
-    if data_batch.shape[0] > 10000:
-        data_batch = data_batch[:10000]
-        ground_truth_batch = ground_truth_batch[:10000]
+    if data_batch.shape[0] > 2000:
+        data_batch = data_batch[:2000]
+        ground_truth_batch = ground_truth_batch[:2000]
 
     return [data_batch], [ground_truth_batch]
 
