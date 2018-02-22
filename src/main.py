@@ -20,20 +20,21 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", ran
         if show_images:
             plt.show()
 
-    do_image(kelz_pred[0].T, "Kelz")
-    do_image(our_pred[0].T, "Mod")
-    do_image(data_batch[0][:, :, 0].T, "Input")
-    do_image(ground_truth_batch[0].T, "Ground_Truth")
-    do_image(ground_truth_batch[0].T - our_pred[0].T, "Ground_Truth__Mod")
-    do_image(ground_truth_batch[0].T - kelz_pred[0].T, "Ground_Truth__Kelz")
-    do_image(our_pred[0].T > 0.5, "Mod_treshold")
-    do_image(kelz_pred[0].T > 0.5, "Kelz_treshold")
+    do_image(kelz_pred[0].T, "01Kelz")
+    do_image(ground_truth_batch[0].T, "02Ground_Truth")
+    do_image(our_pred[0].T, "03Mod")
+    do_image(data_batch[0][:, :, 0].T, "04Input")
+    do_image(ground_truth_batch[0].T, "05Ground_Truth")
+    do_image(ground_truth_batch[0].T - our_pred[0].T, "06Ground_Truth__Mod")
+    do_image(ground_truth_batch[0].T - kelz_pred[0].T, "07Ground_Truth__Kelz")
+    do_image(our_pred[0].T > 0.5, "08Mod_treshold")
+    do_image(kelz_pred[0].T > 0.5, "09Kelz_treshold")
 
     compare_tresh = np.empty((kelz_pred.shape[2] * 2, kelz_pred.shape[1]))
     place = np.linspace(0, kelz_pred.shape[2] * 2 - 2, kelz_pred.shape[2], dtype=int)
     compare_tresh[place, :] = -ground_truth_batch[0].T
     compare_tresh[place + 1, :] = our_pred[0].T > 0.5
-    do_image(compare_tresh, "compare_tresh")
+    do_image(compare_tresh, "10compare_tresh")
 
     logging.info("kelz: " + str(kelz_loss_value))
     logging.info("mod : " + str(our_loss_value))
@@ -43,7 +44,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, num
     init_op = tf.global_variables_initializer()
     saver = tf.train.Saver()
     with tf.Session() as sess:
-        writer = tf.summary.FileWriter("\\tmp\\output", sess.graph)
+        writer = tf.summary.FileWriter("..\\tmp\\output", sess.graph)
         if TRAIN_FROM_LAST:
             saver.restore(sess, super_path)
         else:
@@ -67,7 +68,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, num
             if i % 10 == 9:
                 # Save
                 saver.save(sess, super_path)
-            if i % 10 == 9:
+            if i % 100 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, folder=str(i) + "_" + str(rand_seed))
 
         # Save
@@ -82,14 +83,15 @@ if __name__ == '__main__':
     ground_truth = tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES])
 
     kelz_model, kelz_loss, kelz_train = get_model(data, ground_truth, kelz=True)
-    our_models, our_losses, our_trains = get_phase_train_model(data, ground_truth)
+    #our_models, our_losses, our_trains = get_phase_train_model(data, ground_truth)
+    our_model, our_loss, our_train = get_model(data, ground_truth, kelz=False)
 
     if TRAINING:
-        train(kelz_model, kelz_loss, kelz_train, our_models[0], our_losses[0], our_trains[0], num_batches=NUM_BATCHES,
+        train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, num_batches=NUM_BATCHES,
               rand_seed=RANDOM_DEBUG)
 
     # Test
     saver = tf.train.Saver()
     with tf.Session() as sess:
         saver.restore(sess, super_path)
-        test(sess, kelz_model, kelz_loss, our_models[0], our_losses[0])
+        test(sess, kelz_model, kelz_loss, our_model, our_loss)

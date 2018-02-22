@@ -40,9 +40,9 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 TRAINING = True
 TRAIN_FROM_LAST = False
 super_path = "../tmp/dummy.ckpt"
-show_images = True
+show_images = False
 RANDOM_DEBUG = 0
-NUM_BATCHES = 10000
+NUM_BATCHES = 100000
 MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
 
@@ -57,4 +57,4 @@ TRAIN_PATHS = []
 TEST_PATHS = []
 
 # Model parameters
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.001)
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
