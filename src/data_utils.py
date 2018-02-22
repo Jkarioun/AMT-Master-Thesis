@@ -11,7 +11,7 @@ def wav_to_CQT(file):
     cqt = abs(librosa.core.cqt(y, sr=sr, hop_length=CQT_HOP_LENGTH, fmin=MIN_FREQ, n_bins=NUM_PITCHES * BINS_PER_PITCH,
                                bins_per_octave=BINS_PER_OCTAVE, filter_scale=1, norm=1, sparsity=0, window=CQT_WINDOW,
                                scale=True, pad_mode='constant'))
-    return cqt, sr
+    return cqt.T, sr
 
 
 def display_CQT(cqt, sr):
@@ -95,14 +95,14 @@ def next_batch(i, train=True, onset=False):
     np.random.seed(i)
     tf.set_random_seed(i)
     data_batch, ground_truth_batch = util_next_batch(train=train, onset=onset)
-    while data_batch.shape[0] < 1000:
+    while data_batch.shape[0] <= MIN_FRAME_PER_BATCH:
         inputs, outputs = util_next_batch(train=train, onset=onset)
         data_batch = np.concatenate((data_batch, inputs))
         ground_truth_batch = np.concatenate((ground_truth_batch, outputs))
 
-    if data_batch.shape[0] > 2000:
-        data_batch = data_batch[:2000]
-        ground_truth_batch = ground_truth_batch[:2000]
+    if data_batch.shape[0] > MAX_FRAME_PER_BATCH:
+        data_batch = data_batch[:MAX_FRAME_PER_BATCH]
+        ground_truth_batch = ground_truth_batch[:MAX_FRAME_PER_BATCH]
 
     return [data_batch], [ground_truth_batch]
 
@@ -116,7 +116,7 @@ def util_next_batch(train=True, onset=False):
         pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
     with ZipFile(pair[0]) as zipfile:
         # input
-        #print(pair[0]+"   "+pair[1])
+        print(pair[0]+"   "+pair[1])
         data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
         data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
         # expected output
@@ -132,8 +132,8 @@ if __name__ == '__main__':
         cqt, sr = wav_to_CQT(zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.wav"))
         display_CQT(cqt, sr)
 
-        midi_tensor = midi_file_to_tensor(zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"), onset=False)
+        midi_tensor = midi_file_to_tensor(
+            zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"), onset=False)
         plt.imshow(midi_tensor)
         plt.show()
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
-

@@ -13,10 +13,8 @@ import io
 import soundfile as sf
 import logging
 
-
-logging.basicConfig(filename='../logs/trace.log',level=logging.DEBUG,\
-      format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
-
+logging.basicConfig(filename='../logs/trace.log', level=logging.DEBUG, \
+                    format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 PIANO_MIN_PITCH = 21
 PIANO_MAX_PITCH = 108
@@ -35,16 +33,18 @@ CQT_HOP_LENGTH = 512
 
 FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 
-HARMONIC_RELATIVES = np.array([1/3, 1/2, 1, 2, 3])
+HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
-
 
 # debug parameters
 TRAINING = True
-TRAIN_FROM_LAST = True
+TRAIN_FROM_LAST = False
 super_path = "../tmp/dummy.ckpt"
 show_images = True
-RANDOM_DEBUG = 10500
+RANDOM_DEBUG = 0
+NUM_BATCHES = 10000
+MIN_FRAME_PER_BATCH = 1000
+MAX_FRAME_PER_BATCH = 2000
 
 # Paths
 PATH_DEBUG = "../data/debug/"
@@ -57,4 +57,4 @@ TRAIN_PATHS = []
 TEST_PATHS = []
 
 # Model parameters
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0001)
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.001)
