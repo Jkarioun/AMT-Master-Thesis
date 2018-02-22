@@ -40,10 +40,11 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 
 
 # debug parameters
-TRAINING = True
+TRAINING = False
 TRAIN_FROM_LAST = True
 super_path = "../tmp/dummy.ckpt"
 RANDOM_DEBUG = 5000
+show_images = True
 
 # Paths
 PATH_DEBUG = "../data/debug/"

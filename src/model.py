@@ -99,7 +99,6 @@ def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS):
         output = conv_net_kelz_modified(input_data)
 
     # loss
-    loss = tf.reduce_mean(tf.square(ground_truth - output))
     loss = tf.losses.log_loss(ground_truth, output)
 
     # optimizer
