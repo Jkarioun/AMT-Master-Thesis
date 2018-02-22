@@ -116,7 +116,7 @@ def util_next_batch(train=True, onset=False):
         pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
     with ZipFile(pair[0]) as zipfile:
         # input
-        print(pair[0]+"   "+pair[1])
+        #print(pair[0]+"   "+pair[1])
         data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
         data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
         # expected output

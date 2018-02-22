@@ -60,7 +60,7 @@ if __name__ == '__main__':
             if TRAIN_FROM_LAST:
                 saver.restore(sess, super_path)
             # Train
-            for i in range(0):
+            for i in range(100000):
                 data_batch, ground_truth_batch = next_batch(i + RANDOM_DEBUG, train=True, onset=False)
                 result, train_loss, result_mod, train_loss_mod = sess.run([train, loss, train_mod, loss_mod],
                                                                           feed_dict={data: data_batch,
@@ -70,7 +70,12 @@ if __name__ == '__main__':
                 logging.info("mod:  " + str(train_loss_mod))
                 logging.info("ratio: " + str(train_loss_mod / train_loss))
 
-                if i % 10 == 9:
+                print("Iteration %d" % (i + 1))
+                print("kelz: " + str(train_loss))
+                print("mod:  " + str(train_loss_mod))
+                print("ratio: " + str(train_loss_mod / train_loss))
+
+                if i % 10 == 0:
                     # Save
                     saver.save(sess, super_path)
                 if i % 100 == 99:
