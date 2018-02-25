@@ -3,8 +3,9 @@ from model import *
 from data_utils import *
 
 
-def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=5):
+def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=10):
     data_batch, ground_truth_batch = next_batch(rand_seed, train=False, onset=False)
+    _, ground_truth_batch_onset = next_batch(rand_seed, train=False, onset=True)
 
     kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
                                                                     feed_dict={data: data_batch,
@@ -14,19 +15,23 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", ran
         os.makedirs(PATH_VISUALISATION + folder)
 
     def do_image(data, title):
-        plt.imshow(data, aspect='auto')
-        plt.title(title)
-        plt.savefig(PATH_VISUALISATION + folder + '/' + title + '.png')
+        im = Image.new("L", (len(data[0]), len(data)))
+        im.putdata([item*255 for sublist in data[::-1] for item in sublist])
+        im.save(PATH_VISUALISATION + folder + '/' + title + '.png')
+        #plt.savefig(PATH_VISUALISATION + folder + '/' + title + '.png')
         if show_images:
+            plt.pcolormesh(data)
+            plt.title(title)
             plt.show()
 
     do_image(kelz_pred[0].T, "01Kelz")
     do_image(ground_truth_batch[0].T, "02Ground_Truth")
     do_image(our_pred[0].T, "03Mod")
     do_image(data_batch[0][:, :, 0].T, "04Input")
-    do_image(ground_truth_batch[0].T, "05Ground_Truth")
-    do_image(ground_truth_batch[0].T - our_pred[0].T, "06Ground_Truth__Mod")
-    do_image(ground_truth_batch[0].T - kelz_pred[0].T, "07Ground_Truth__Kelz")
+    do_image(ground_truth_batch_onset[0].T, "05Ground_Truth_Onset")
+    do_image((ground_truth_batch_onset[0].T+ground_truth_batch[0].T)/2, "05Ground_Truth_Onset_And_frame")
+    do_image((ground_truth_batch[0].T - our_pred[0].T + 1)/2, "06Ground_Truth__Mod")
+    do_image((ground_truth_batch[0].T - kelz_pred[0].T + 1)/2, "07Ground_Truth__Kelz")
     do_image(our_pred[0].T > 0.5, "08Mod_treshold")
     do_image(kelz_pred[0].T > 0.5, "09Kelz_treshold")
 
@@ -34,7 +39,7 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", ran
     place = np.linspace(0, kelz_pred.shape[2] * 2 - 2, kelz_pred.shape[2], dtype=int)
     compare_tresh[place, :] = -ground_truth_batch[0].T
     compare_tresh[place + 1, :] = our_pred[0].T > 0.5
-    do_image(compare_tresh, "10compare_tresh")
+    do_image((compare_tresh+1)/2, "10compare_tresh")
 
     logging.info("kelz: " + str(kelz_loss_value))
     logging.info("mod : " + str(our_loss_value))
