@@ -22,19 +22,12 @@ def append_to(a_list, zipfile_name, path):
 
 
 def init_path_lists():
-    cnt_mus = 0
-    take_wav = False
     for zipfile_name in [f for f in os.listdir(PATH_MAPS) if f.endswith('.zip')]:
         with ZipFile(PATH_MAPS + zipfile_name) as zipfile:
             for path in zipfile.namelist():
-                if len(path.split("/")) > 1 and (path.endswith(".mid") or path.endswith(".wav")):
+                if len(path.split("/")) > 1:
                     if path.split("/")[1] == 'MUS':
-                        if cnt_mus % 10 == 0 or take_wav:
-                            append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
-                            take_wav = not take_wav
-                        else:
-                            append_to(TRAIN_PATHS, PATH_MAPS + zipfile_name, path)
-                        cnt_mus += 1
+                        append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
                     else:
                         append_to(TRAIN_PATHS, PATH_MAPS + zipfile_name, path)
 
