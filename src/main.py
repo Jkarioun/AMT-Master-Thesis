@@ -73,7 +73,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, num
             if i % 10 == 9:
                 # Save
                 saver.save(sess, super_path)
-            if i % 100 == 0:
+            if i % 500 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, folder=str(i) + "_" + str(rand_seed))
 
         # Save

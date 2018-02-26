@@ -1,2 +1,2 @@
-model_checkpoint_path: "dummy.ckpt"
-all_model_checkpoint_paths: "dummy.ckpt"
+model_checkpoint_path: "dummy2.ckpt"
+all_model_checkpoint_paths: "dummy2.ckpt"

@@ -38,8 +38,8 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # debug parameters
 TRAINING = True
-TRAIN_FROM_LAST = False
-super_path = "../tmp/dummy.ckpt"
+TRAIN_FROM_LAST = True
+super_path = "../tmp/dummy2.ckpt"
 show_images = False
 RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
