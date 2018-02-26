@@ -3,7 +3,7 @@ from model import *
 from data_utils import *
 
 
-def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=10):
+def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=10, create_images=True):
     data_batch, ground_truth_batch = next_batch(rand_seed, train=False, onset=False)
     _, ground_truth_batch_onset = next_batch(rand_seed, train=False, onset=True)
 
@@ -24,22 +24,23 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", ran
             plt.title(title)
             plt.show()
 
-    do_image(kelz_pred[0].T, "01Kelz")
-    do_image(ground_truth_batch[0].T, "02Ground_Truth")
-    do_image(our_pred[0].T, "03Mod")
-    do_image(data_batch[0][:, :, 0].T, "04Input")
-    do_image(ground_truth_batch_onset[0].T, "05Ground_Truth_Onset")
-    do_image((ground_truth_batch_onset[0].T+ground_truth_batch[0].T)/2, "05Ground_Truth_Onset_And_frame")
-    do_image((ground_truth_batch[0].T - our_pred[0].T + 1)/2, "06Ground_Truth__Mod")
-    do_image((ground_truth_batch[0].T - kelz_pred[0].T + 1)/2, "07Ground_Truth__Kelz")
-    do_image(our_pred[0].T > 0.5, "08Mod_treshold")
-    do_image(kelz_pred[0].T > 0.5, "09Kelz_treshold")
+    if create_images:
+        do_image(kelz_pred[0].T, "01Kelz")
+        do_image(ground_truth_batch[0].T, "02Ground_Truth")
+        do_image(our_pred[0].T, "03Mod")
+        do_image(data_batch[0][:, :, 0].T, "04Input")
+        do_image(ground_truth_batch_onset[0].T, "05Ground_Truth_Onset")
+        do_image((ground_truth_batch_onset[0].T+ground_truth_batch[0].T)/2, "05Ground_Truth_Onset_And_frame")
+        do_image((ground_truth_batch[0].T - our_pred[0].T + 1)/2, "06Ground_Truth__Mod")
+        do_image((ground_truth_batch[0].T - kelz_pred[0].T + 1)/2, "07Ground_Truth__Kelz")
+        do_image(our_pred[0].T > 0.5, "08Mod_treshold")
+        do_image(kelz_pred[0].T > 0.5, "09Kelz_treshold")
 
-    compare_tresh = np.empty((kelz_pred.shape[2] * 2, kelz_pred.shape[1]))
-    place = np.linspace(0, kelz_pred.shape[2] * 2 - 2, kelz_pred.shape[2], dtype=int)
-    compare_tresh[place, :] = -ground_truth_batch[0].T
-    compare_tresh[place + 1, :] = our_pred[0].T > 0.5
-    do_image((compare_tresh+1)/2, "10compare_tresh")
+        compare_tresh = np.empty((kelz_pred.shape[2] * 2, kelz_pred.shape[1]))
+        place = np.linspace(0, kelz_pred.shape[2] * 2 - 2, kelz_pred.shape[2], dtype=int)
+        compare_tresh[place, :] = -ground_truth_batch[0].T
+        compare_tresh[place + 1, :] = our_pred[0].T > 0.5
+        do_image((compare_tresh+1)/2, "10compare_tresh")
 
     logging.info("kelz: " + str(kelz_loss_value))
     logging.info("mod : " + str(our_loss_value))
@@ -99,4 +100,5 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     with tf.Session() as sess:
         saver.restore(sess, super_path)
-        test(sess, kelz_model, kelz_loss, our_model, our_loss)
+        for i in range(100):
+            test(sess, kelz_model, kelz_loss, our_model, our_loss, rand_seed=i, create_images=False)
