@@ -41,7 +41,7 @@ TRAINING = True
 TRAIN_FROM_LAST = True
 super_path = "../tmp/dummy2.ckpt"
 show_images = False
-RANDOM_DEBUG = 0
+RANDOM_DEBUG = 16000 + 6500
 NUM_BATCHES = 100000
 MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
@@ -53,6 +53,7 @@ PATH_TEST = "../data/test/"
 PATH_TRAIN = "../data/train/"
 PATH_VISUALISATION = "../data/visualisation/"
 PATH_MAPS = "../data/MAPS/"
+PATH_LOGS = "../logs/"
 TRAIN_PATHS = []
 TEST_PATHS = []
 
