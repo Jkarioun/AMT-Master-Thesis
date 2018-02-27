@@ -3,13 +3,18 @@ from model import *
 from data_utils import *
 
 
-def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=10, create_images=True):
+def test(sess, kelz_model, kelz_loss, our_model, our_loss, folder="default", rand_seed=10, create_images=True, onset=True):
     data_batch, ground_truth_batch = next_batch(rand_seed, train=False, onset=False)
-    _, ground_truth_batch_onset = next_batch(rand_seed, train=False, onset=True)
+    data_batch_onset, ground_truth_batch_onset = next_batch(rand_seed, train=False, onset=True)
 
-    kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
-                                                                    feed_dict={data: data_batch,
-                                                                               ground_truth: ground_truth_batch})
+    if onset:
+        kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
+                                                                        feed_dict={data: data_batch_onset,
+                                                                               ground_truth: ground_truth_batch_onset})
+    else:
+        kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
+                                                                        feed_dict={data: data_batch,
+                                                                                   ground_truth: ground_truth_batch})
 
     if not os.path.exists(PATH_VISUALISATION + folder):
         os.makedirs(PATH_VISUALISATION + folder)
@@ -94,7 +99,7 @@ if __name__ == '__main__':
 
     if TRAINING:
         train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, num_batches=NUM_BATCHES,
-              rand_seed=RANDOM_DEBUG)
+              rand_seed=RANDOM_DEBUG, onset=True)
 
     # Test
     saver = tf.train.Saver()
