@@ -2,6 +2,7 @@ Input tensor of the form (Batch x Time x Pitch x Filters)
 Output tensor of the form (Time x Pitch)
 
 Dependencies:
+tensorflow
 librosa
 pretty-midi
 image

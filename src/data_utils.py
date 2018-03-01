@@ -76,54 +76,61 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
     im.save(output_path)
 
 
-def midi_file_to_tensor(file, onset=False):
+def midi_file_to_tensor(file):
     """ Returns the information of the midi file in the form
-    output[frame,pitch] = onset_during_this_frame if onset else pitch_played_during_this_frame
+    output[onset, frame, pitch] =
+        onset_velocity_during_this_frame if onset==1 else pitch_velocity_during_this_frame
     """
     midi = pm.PrettyMIDI(io.BytesIO(file.read()))
-    frames = math.floor(midi.get_end_time() * FRAME_PER_SEC)
-    if onset:
-        output = np.full((frames, PIANO_PITCHES), fill_value=False, dtype=bool)
-        for note in midi.instruments[0].notes:
-            output[math.floor(note.start * FRAME_PER_SEC), note.pitch - PIANO_MIN_PITCH] = True
-    else:
-        output = midi.get_piano_roll(FRAME_PER_SEC)[PIANO_MIN_PITCH:PIANO_MAX_PITCH + 1, :].T > 0
+    frames = math.floor(midi.get_end_time() * FRAME_PER_SEC) + 1
+    output = np.full((2, frames, PIANO_PITCHES), fill_value=0, dtype=int)
+    output[0, :-1, :] = midi.get_piano_roll(FRAME_PER_SEC)[PIANO_MIN_PITCH:PIANO_MAX_PITCH + 1, :].T
+    for note in midi.instruments[0].notes:
+        output[:, math.floor(note.start * FRAME_PER_SEC), note.pitch - PIANO_MIN_PITCH] = note.velocity
     return output
 
 
-def next_batch(i, train=True, onset=False):
+def next_batch(i, train=True):
     np.random.seed(i)
     tf.set_random_seed(i)
-    data_batch, ground_truth_batch = util_next_batch(train=train, onset=onset)
+    data_batch, ground_truth_batch_frame, ground_truth_batch_onset = util_next_batch(train=train)
     while data_batch.shape[0] <= MIN_FRAME_PER_BATCH:
-        inputs, outputs = util_next_batch(train=train, onset=onset)
+        inputs, outputs_frame, outputs_onset = util_next_batch(train=train)
         data_batch = np.concatenate((data_batch, inputs))
-        ground_truth_batch = np.concatenate((ground_truth_batch, outputs))
+        ground_truth_batch_frame = np.concatenate((ground_truth_batch_frame, outputs_frame))
+        ground_truth_batch_onset = np.concatenate((ground_truth_batch_onset, outputs_onset))
 
     if data_batch.shape[0] > MAX_FRAME_PER_BATCH:
         data_batch = data_batch[:MAX_FRAME_PER_BATCH]
-        ground_truth_batch = ground_truth_batch[:MAX_FRAME_PER_BATCH]
+        ground_truth_batch_frame = ground_truth_batch_frame[:MAX_FRAME_PER_BATCH]
+        ground_truth_batch_onset = ground_truth_batch_onset[:MAX_FRAME_PER_BATCH]
+    return np.expand_dims(data_batch, axis=0), \
+           np.expand_dims(ground_truth_batch_frame, axis=0), \
+           np.expand_dims(ground_truth_batch_onset, axis=0)
 
-    return [data_batch], [ground_truth_batch]
 
-
-def util_next_batch(train=True, onset=False):
+def util_next_batch(train=True, music_pair=None):
     """ Returns the next batch for training.
+    Choose the music at random if music_pair is None.
     """
-    if train:
+    if music_pair is not None:
+        pair = music_pair
+    elif train:
         pair = TRAIN_PATHS[np.random.randint(0, len(TRAIN_PATHS))]
     else:
         pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
     with ZipFile(pair[0]) as zipfile:
         # input
-        print(pair[0]+"   "+pair[1])
+        print(pair[0] + "   " + pair[1])
         data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
         data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
         # expected output
-        unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"), onset=onset)
-        ground_truth_batch = np.zeros((data_batch.shape[0], PIANO_PITCHES))
-        ground_truth_batch[:unpadded_tensor.shape[0], :unpadded_tensor.shape[1]] = unpadded_tensor
-    return data_batch, ground_truth_batch
+        unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"))
+        ground_truth_batch_frame = np.zeros((data_batch.shape[0], PIANO_PITCHES))
+        ground_truth_batch_frame[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[0]
+        ground_truth_batch_onset = np.zeros((data_batch.shape[0], PIANO_PITCHES))
+        ground_truth_batch_onset[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[1]
+    return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
 
 
 if __name__ == '__main__':
@@ -133,7 +140,7 @@ if __name__ == '__main__':
         display_CQT(cqt, sr)
 
         midi_tensor = midi_file_to_tensor(
-            zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"), onset=False)
-        plt.imshow(midi_tensor)
+            zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"))
+        plt.imshow(midi_tensor[0])
         plt.show()
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
