@@ -22,3 +22,7 @@ Partial training :
     second_train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
                                           "scope/prefix/for/second/vars")
     second_train_op = optimizer.minimize(cost, var_list=second_train_vars)
+
+
+problematic data points:
+    ENSTDkAm/ISOL/ST/MAPS_ISOL_ST_F_S0_M74_ENSTDkAm (too short)
