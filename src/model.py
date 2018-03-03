@@ -96,14 +96,14 @@ def conv_net_kelz_modified(inputs):
         return net
 
 
-def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS):
+def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
     if kelz:
         output = conv_net_kelz(input_data)
     else:
         output = conv_net_kelz_modified(input_data)
 
     # loss
-    loss = tf.losses.log_loss(ground_truth, output)
+    loss = log_loss(ground_truth, output, onset=onset)
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
@@ -180,7 +180,7 @@ def get_phase_train_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
 # Taken from tensorflow log_loss implementation to tweak its definition
 def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
              loss_collection=ops.GraphKeys.LOSSES,
-             reduction=tf.losses.Reduction.SUM_BY_NONZERO_WEIGHTS):
+             reduction=tf.losses.Reduction.SUM_BY_NONZERO_WEIGHTS, onset=False):
     """Adds a Log Loss term to the training procedure.
 
     `weights` acts as a coefficient for the loss. If a scalar is provided, then
@@ -220,9 +220,10 @@ def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
         predictions = math_ops.to_float(predictions)
         labels = math_ops.to_float(labels)
         predictions.get_shape().assert_is_compatible_with(labels.get_shape())
+        fact_loss = 100 if onset else 10
         losses = -math_ops.multiply(
             labels,
-            100 * math_ops.log(predictions + epsilon)) - math_ops.multiply(
+            fact_loss * math_ops.log(predictions + epsilon)) - math_ops.multiply(
             (1 - labels), math_ops.log(1 - predictions + epsilon))
         return tf.losses.compute_weighted_loss(
             losses, weights, scope, loss_collection, reduction=reduction)

@@ -37,6 +37,7 @@ HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # debug parameters
+ONSET = False
 TRAINING = True
 TRAIN_FROM_LAST = True
 super_path = "../tmp/onsets.ckpt"
