@@ -1,2 +1,2 @@
-model_checkpoint_path: "onsets.ckpt"
-all_model_checkpoint_paths: "onsets.ckpt"
+model_checkpoint_path: "onsets2.ckpt"
+all_model_checkpoint_paths: "onsets2.ckpt"

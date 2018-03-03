@@ -81,11 +81,8 @@ def midi_file_to_tensor(file, onset=False):
     output[frame,pitch] = onset_during_this_frame if onset else pitch_played_during_this_frame
     """
     midi = pm.PrettyMIDI(io.BytesIO(file.read()))
-    frames = math.floor(midi.get_end_time() * FRAME_PER_SEC)
+    frames = math.floor(midi.get_end_time() * FRAME_PER_SEC) + 1
 
-    if frames < 30:
-        print('Skipped!')
-        return None
     if onset:
         output = np.full((frames, PIANO_PITCHES), fill_value=False, dtype=bool)
         for note in midi.instruments[0].notes:
@@ -120,13 +117,11 @@ def util_next_batch(train=True, onset=False):
         pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
     with ZipFile(pair[0]) as zipfile:
         # input
-        print(pair[0]+"   "+pair[1])
+        print(pair[0] + "   " + pair[1])
         data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
         data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
         # expected output
         unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"), onset=onset)
-        if unpadded_tensor is None:
-            return util_next_batch(train=train, onset=onset)
 
         ground_truth_batch = np.zeros((data_batch.shape[0], PIANO_PITCHES))
         ground_truth_batch[:unpadded_tensor.shape[0], :unpadded_tensor.shape[1]] = unpadded_tensor

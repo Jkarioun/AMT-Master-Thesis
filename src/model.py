@@ -72,7 +72,8 @@ def conv_net_kelz_modified(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
+        #net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
+        net = slim.conv2d(inputs, 32, [3, 3], scope='conv1_mod')
 
         net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
                              bins_per_octave=BINS_PER_OCTAVE)
@@ -103,7 +104,7 @@ def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS):
         output = conv_net_kelz_modified(input_data)
 
     # loss
-    loss = tf.losses.log_loss(ground_truth, output)
+    loss = log_loss(ground_truth, output)
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)

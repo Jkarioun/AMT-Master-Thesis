@@ -13,7 +13,7 @@ import io
 import soundfile as sf
 import logging
 
-logging.basicConfig(filename='../logs/trace_onsets.log', level=logging.DEBUG, \
+logging.basicConfig(filename='../logs/trace_onsets2.log', level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 PIANO_MIN_PITCH = 21
@@ -38,10 +38,10 @@ CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # debug parameters
 TRAINING = True
-TRAIN_FROM_LAST = True
-super_path = "../tmp/onsets.ckpt"
+TRAIN_FROM_LAST = False
+super_path = "../tmp/onsets2.ckpt"
 show_images = False
-RANDOM_DEBUG = 50 + 70
+RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
 MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
