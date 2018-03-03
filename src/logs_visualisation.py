@@ -10,7 +10,7 @@ if __name__ == '__main__':
     train_ll_kelz = []
     train_ll_mod = []
 
-    with open(PATH_LOGS + 'trace.log') as log_file:
+    with open(PATH_LOGS + 'trace_onsets2.log') as log_file:
         iter = 0
 
         line_iter = 0
@@ -21,9 +21,9 @@ if __name__ == '__main__':
             if 'Iteration' in line:
                 iter = int(line.split(' ')[-1])
 
-                if iter % 5 == 1:
+                if iter % 5 == 0:
                     line_iter = line_num
-                if iter % 500 == 1:
+                if iter % 500 == 0:
                     line_iter_test = line_num
 
             # get test log losses on 4th and 5th line after the iteration line
