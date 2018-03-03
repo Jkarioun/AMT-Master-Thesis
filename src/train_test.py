@@ -1,7 +1,6 @@
 from config import *
-from utils import do_image
+from utils import *
 from data_utils import next_batch
-from utils import accuracy
 
 
 def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder="default", rand_seed=10,
@@ -9,10 +8,14 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
     data_batch, ground_truth_batch_frame, ground_truth_batch_onset = next_batch(rand_seed, train=False)
     ground_truth_batch = ((ground_truth_batch_onset if onset else ground_truth_batch_frame) > 0).astype(int)
 
+    ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame)
+
     kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
-                                                                    feed_dict={placeholders['data']: data_batch,
+                                                                    feed_dict={placeholders[DATA]: data_batch,
                                                                                placeholders[
-                                                                                   'ground_truth']: ground_truth_batch})
+                                                                                   GROUND_TRUTH]: ground_truth_batch,
+                                                                               placeholders[
+                                                                                   GROUND_WEIGHTS]: ground_weights})
 
     if not os.path.exists(PATH_VISUALISATION + folder):
         os.makedirs(PATH_VISUALISATION + folder)
@@ -60,10 +63,11 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
         for i in range(num_batches):
             data_batch, ground_truth_batch_frame, ground_truth_batch_onset = next_batch(i + rand_seed, train=True)
             ground_truth_batch = ((ground_truth_batch_onset if onset else ground_truth_batch_frame) > 0).astype(int)
+            ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame)
             kelz_loss_value, _, our_loss_value, _ = sess.run([kelz_loss, kelz_train, our_loss, our_train],
-                                                             feed_dict={placeholders['data']: data_batch,
-                                                                        placeholders[
-                                                                            'ground_truth']: ground_truth_batch})
+                                                             feed_dict={placeholders[DATA]: data_batch,
+                                                                        placeholders[GROUND_TRUTH]: ground_truth_batch,
+                                                                        placeholders[GROUND_WEIGHTS]: ground_weights})
 
             logging.info("[iteration=%d][model=kelz][measure=log_loss][onset=%r]: %f" % (i, onset, kelz_loss_value))
             logging.info("[iteration=%d][model=mod][measure=log_loss][onset=%r]: %f" % (i, onset, our_loss_value))
