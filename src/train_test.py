@@ -1,7 +1,7 @@
 from config import *
 from utils import do_image
 from data_utils import next_batch
-from sklearn.metrics import accuracy_score
+from utils import accuracy
 
 
 def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder="default", rand_seed=10,
@@ -36,12 +36,14 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         compare_tresh[place + 1, :] = our_pred[0].T > 0.5
         do_image((compare_tresh + 1) / 2, "10compare_tresh", folder)
 
-    logging.info("kelz accuracy(onset=%r): %.2f" % (onset, accuracy_score(ground_truth_batch[0] == 1, kelz_pred[0] > 0.5)))
+    logging.info("[model=kelz][measure=accuracy][onset=%r]: %f" % (
+    onset, accuracy(ground_truth_batch[0] == 1, kelz_pred[0] > 0.5)))
     logging.info(
-        "our  accuracy(onset=%r): %.2f" % (onset, accuracy_score(ground_truth_batch_onset[0] == 1, our_pred[0] > 0.5)))
+        "[model=mod][measure=accuracy][onset=%r]: %f" % (
+        onset, accuracy(ground_truth_batch_onset[0] > 0., our_pred[0] > 0.5)))
 
-    logging.info("kelz log_loss(onset=%r): " % (onset) + str(kelz_loss_value))
-    logging.info("mod log_loss(onset=%r): " % (onset) + str(our_loss_value))
+    logging.info("[model=mod][measure=log_loss][onset=%r]: %f" % (onset, kelz_loss_value))
+    logging.info("[model=mod][measure=log_loss][onset=%r]: %f" % (onset, our_loss_value))
 
 
 def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, placeholders, num_batches=100, rand_seed=0,
@@ -62,10 +64,11 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
                                                              feed_dict={placeholders['data']: data_batch,
                                                                         placeholders[
                                                                             'ground_truth']: ground_truth_batch})
-            logging.info("Iteration %d" % (i + 1))
-            logging.info("kelz: " + str(kelz_loss_value))
-            logging.info("mod:  " + str(our_loss_value))
-            logging.info("ratio: " + str(our_loss_value / kelz_loss_value))
+
+            logging.info("[iteration=%d][model=kelz][measure=log_loss][onset=%r]: %f" % (i, onset, kelz_loss_value))
+            logging.info("[iteration=%d][model=mod][measure=log_loss][onset=%r]: %f" % (i, onset, our_loss_value))
+            logging.info("[iteration=%d][measure=ratio][onset=%r]: %f" % (
+            i, onset, our_loss_value / kelz_loss_value))
 
             print("Iteration %d" % (i + 1))
             print("kelz: " + str(kelz_loss_value))
@@ -77,7 +80,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
                 saver.save(sess, super_path)
             if i % 500 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
-                     folder=str(i) + "_" + str(rand_seed))
+                     folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET)
 
         # Save
         saver.save(sess, super_path)

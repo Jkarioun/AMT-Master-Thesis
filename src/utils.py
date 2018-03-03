@@ -10,3 +10,7 @@ def do_image(data, title, folder, visualization_path=True):
         plt.pcolormesh(data)
         plt.title(title)
         plt.show()
+
+
+def accuracy(ground_truth, pred):
+    return np.mean(ground_truth == pred)

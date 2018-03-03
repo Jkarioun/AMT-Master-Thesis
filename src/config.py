@@ -13,9 +13,9 @@ import io
 import soundfile as sf
 import logging
 
-name = 'onsets_accuracy'
+CONFIG_NAME = 'onsets_accuracy'
 
-logging.basicConfig(filename='../logs/%s.log' % name, level=logging.DEBUG, \
+logging.basicConfig(filename='../logs/%s.log' % CONFIG_NAME, level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 PIANO_MIN_PITCH = 21
@@ -39,10 +39,10 @@ HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
 # debug parameters
-ONSET = False
+ONSET = True
 TRAINING = True
 TRAIN_FROM_LAST = False
-super_path = "../tmp/%s.ckpt" % name
+super_path = "../tmp/%s.ckpt" % CONFIG_NAME
 show_images = False
 RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
