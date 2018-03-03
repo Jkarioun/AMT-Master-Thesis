@@ -14,7 +14,9 @@ import soundfile as sf
 import logging
 from strings import *
 
-logging.basicConfig(filename='../logs/trace_onsets2.log', level=logging.DEBUG, \
+name = 'onsets_accuracy'
+
+logging.basicConfig(filename='../logs/%s.log' % name, level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 PIANO_MIN_PITCH = 21
@@ -45,7 +47,7 @@ TOO_LONG_MAX = FRAME_PER_SEC * 5
 ONSET = False
 TRAINING = True
 TRAIN_FROM_LAST = False
-super_path = "../tmp/onsets2.ckpt"
+super_path = "../tmp/%s.ckpt" % name
 show_images = False
 RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
