@@ -12,6 +12,7 @@ import os
 import io
 import soundfile as sf
 import logging
+from strings import *
 
 logging.basicConfig(filename='../logs/trace_onsets2.log', level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
@@ -35,6 +36,10 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 
 HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
+
+
+TOO_LONG_MIN = FRAME_PER_SEC * 2
+TOO_LONG_MAX = FRAME_PER_SEC * 5
 
 # debug parameters
 ONSET = False

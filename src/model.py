@@ -72,7 +72,7 @@ def conv_net_kelz_modified(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        #net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
+        # net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
         net = slim.conv2d(inputs, 32, [3, 3], scope='conv1_mod')
 
         net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
@@ -97,14 +97,17 @@ def conv_net_kelz_modified(inputs):
         return net
 
 
-def get_model(input_data, ground_truth, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
+def get_model(placeholders, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
     if kelz:
-        output = conv_net_kelz(input_data)
+        output = conv_net_kelz(placeholders[DATA])
     else:
-        output = conv_net_kelz_modified(input_data)
+        output = conv_net_kelz_modified(placeholders[DATA])
 
     # loss
-    loss = log_loss(ground_truth, output, onset=onset)
+    loss = log_loss(placeholders[GROUND_TRUTH], output, onset=onset)
+    if not onset:
+        loss = loss * placeholders[GROUND_WEIGHTS]
+
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
