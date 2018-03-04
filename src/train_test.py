@@ -45,7 +45,7 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         "[model=mod][measure=accuracy][onset=%r]: %f" % (
         onset, accuracy(ground_truth_batch_onset[0] > 0., our_pred[0] > 0.5)))
 
-    logging.info("[model=mod][measure=log_loss][onset=%r]: %f" % (onset, kelz_loss_value))
+    logging.info("[model=kelz][measure=log_loss][onset=%r]: %f" % (onset, kelz_loss_value))
     logging.info("[model=mod][measure=log_loss][onset=%r]: %f" % (onset, our_loss_value))
 
 

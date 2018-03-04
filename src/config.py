@@ -14,7 +14,7 @@ import soundfile as sf
 import logging
 from strings import *
 
-CONFIG_NAME = 'onsets_accuracy'
+CONFIG_NAME = 'onsets_accuracy_allharmonic'
 
 logging.basicConfig(filename='../logs/%s.log' % CONFIG_NAME, level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')

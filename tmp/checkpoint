@@ -1,2 +1,2 @@
-model_checkpoint_path: "onsets2.ckpt"
-all_model_checkpoint_paths: "onsets2.ckpt"
+model_checkpoint_path: "onsets_accuracy_allharmonic.ckpt"
+all_model_checkpoint_paths: "onsets_accuracy_allharmonic.ckpt"
