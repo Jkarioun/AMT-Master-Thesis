@@ -1,9 +1,7 @@
 import librosa
 import tensorflow as tf
-import librosa.display
 import numpy as np
 import pretty_midi as pm
-import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 from PIL import Image
 import math
@@ -13,6 +11,12 @@ import io
 import soundfile as sf
 import logging
 from strings import *
+
+DISPLAY = False
+
+if DISPLAY:
+    import librosa.display
+    import matplotlib.pyplot as plt
 
 CONFIG_NAME = 'onsets_accuracy'
 

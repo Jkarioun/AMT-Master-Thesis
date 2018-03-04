@@ -1,6 +1,4 @@
 from config import *
-import math
-import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
@@ -43,22 +41,25 @@ if __name__ == '__main__':
     train_ll_kelz = [sum(train_ll_kelz[i:i + mv_length]) / mv_length for i in range(len(train_ll_kelz) - mv_length)]
     train_ll_mod = [sum(train_ll_mod[i:i + mv_length]) / mv_length for i in range(len(train_ll_mod) - mv_length)]
 
-    plt.plot(range(len(train_ll_kelz)), train_ll_kelz, '--', \
-             range(len(train_ll_kelz)), train_ll_mod, '-')
+    if DISPLAY:
+        plt.plot(range(len(train_ll_kelz)), train_ll_kelz, '--', \
+                 range(len(train_ll_kelz)), train_ll_mod, '-')
 
-    plt.legend(['kelz', 'our model'], loc='upper right')
-    plt.ylabel('Log loss (moving average over 300 steps)')
-    plt.xlabel('Steps (5 iterations per steps)')
-    plt.title('Train loss evolution over training')
+        plt.legend(['kelz', 'our model'], loc='upper right')
+        plt.ylabel('Log loss (moving average over 300 steps)')
+        plt.xlabel('Steps (5 iterations per steps)')
+        plt.title('Train loss evolution over training')
 
-    plt.show()
+        plt.show()
 
-    plt.plot(range(len(test_ll_kelz)), test_ll_kelz, '--', \
-             range(len(test_ll_kelz)), test_ll_mod, '-')
+        plt.plot(range(len(test_ll_kelz)), test_ll_kelz, '--', \
+                 range(len(test_ll_kelz)), test_ll_mod, '-')
 
-    plt.legend(['kelz', 'our model'], loc='upper right')
-    plt.ylabel('Log loss')
-    plt.xlabel('Steps (500 training iterations per step)')
-    plt.title('Test loss evolution over training')
+        plt.legend(['kelz', 'our model'], loc='upper right')
+        plt.ylabel('Log loss')
+        plt.xlabel('Steps (500 training iterations per step)')
+        plt.title('Test loss evolution over training')
 
-    plt.show()
+        plt.show()
+    else:
+        print("DISPLAY is set to False")
