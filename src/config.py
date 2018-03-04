@@ -1,9 +1,7 @@
 import librosa
 import tensorflow as tf
-import librosa.display
 import numpy as np
 import pretty_midi as pm
-import matplotlib.pyplot as plt
 import tensorflow.contrib.slim as slim
 from PIL import Image
 import math
@@ -15,6 +13,13 @@ import logging
 from strings import *
 
 CONFIG_NAME = 'onsets_accuracy_allharmonic'
+DISPLAY = False
+
+if DISPLAY:
+    import librosa.display
+    import matplotlib.pyplot as plt
+
+CONFIG_NAME = 'onsets_accuracy'
 
 logging.basicConfig(filename='../logs/%s.log' % CONFIG_NAME, level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')

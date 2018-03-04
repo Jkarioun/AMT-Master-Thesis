@@ -15,10 +15,13 @@ def wav_to_CQT(file):
 
 
 def display_CQT(cqt, sr):
-    librosa.display.specshow(librosa.amplitude_to_db(cqt, ref=np.max), sr=sr, x_axis='time', y_axis='cqt_note')
-    plt.colorbar(format='%+2.0f dB')
-    plt.title('Constant-Q power spectrum')
-    plt.show()
+    if DISPLAY:
+        librosa.display.specshow(librosa.amplitude_to_db(cqt, ref=np.max), sr=sr, x_axis='time', y_axis='cqt_note')
+        plt.colorbar(format='%+2.0f dB')
+        plt.title('Constant-Q power spectrum')
+        plt.show()
+    else:
+        print("DISPLAY is set to False")
 
 
 def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
@@ -141,6 +144,9 @@ if __name__ == '__main__':
 
         midi_tensor = midi_file_to_tensor(
             zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"))
-        plt.imshow(midi_tensor[0])
-        plt.show()
+        if DISPLAY:
+            plt.imshow(midi_tensor[0])
+            plt.show()
+        else:
+            print("DISPLAY is set to False")
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")

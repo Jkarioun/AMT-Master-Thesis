@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from init import *
 from model import *
 from data_utils import *
@@ -24,6 +26,6 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     with tf.Session() as sess:
         saver.restore(sess, super_path)
-        for i in range(100):
+        for i in range(1):
             test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, rand_seed=i, create_images=False,
                  onset=ONSET)
