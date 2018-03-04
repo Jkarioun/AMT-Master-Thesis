@@ -12,7 +12,6 @@ import soundfile as sf
 import logging
 from strings import *
 
-CONFIG_NAME = 'onsets_accuracy_allharmonic'
 DISPLAY = False
 
 if DISPLAY:
