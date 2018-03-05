@@ -79,10 +79,10 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
             print("mod:  " + str(our_loss_value))
             print("ratio: " + str(our_loss_value / kelz_loss_value))
 
-            if i % 10 == 9:
+            if (i+1) % 10 == 0:
                 # Save
                 saver.save(sess, super_path)
-            if i % 500 == 0:
+            if (i+1) % 500 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
                      folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET)
 
