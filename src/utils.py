@@ -1,12 +1,16 @@
 from config import *
 
 
-def onsets_and_frames_to_weights(onsets, frames):
+def onsets_and_frames_to_weights(onsets, frames, onset):
     assert (onsets.shape == frames.shape)
     onsets = onsets.T
     frames = frames.T
 
     output = np.ones(onsets.shape, float)
+
+    if onset:
+        return output.T
+
     for pitch in range(len(onsets)):
         time_from_onset = 10000
         for time in range(len(onsets[pitch])):

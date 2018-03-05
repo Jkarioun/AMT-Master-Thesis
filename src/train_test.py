@@ -8,7 +8,7 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
     data_batch, ground_truth_batch_frame, ground_truth_batch_onset = next_batch(rand_seed, train=False)
     ground_truth_batch = ((ground_truth_batch_onset if onset else ground_truth_batch_frame) > 0).astype(int)
 
-    ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame)
+    ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame, onset=onset)
 
     kelz_pred, kelz_loss_value, our_pred, our_loss_value = sess.run([kelz_model, kelz_loss, our_model, our_loss],
                                                                     feed_dict={placeholders[DATA]: data_batch,
@@ -63,7 +63,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
         for i in range(num_batches):
             data_batch, ground_truth_batch_frame, ground_truth_batch_onset = next_batch(i + rand_seed, train=True)
             ground_truth_batch = ((ground_truth_batch_onset if onset else ground_truth_batch_frame) > 0).astype(int)
-            ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame)
+            ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame, onset=onset)
             kelz_loss_value, _, our_loss_value, _ = sess.run([kelz_loss, kelz_train, our_loss, our_train],
                                                              feed_dict={placeholders[DATA]: data_batch,
                                                                         placeholders[GROUND_TRUTH]: ground_truth_batch,

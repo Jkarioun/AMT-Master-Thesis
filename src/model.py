@@ -72,8 +72,8 @@ def conv_net_kelz_modified(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
-        #net = slim.conv2d(inputs, 32, [3, 3], scope='conv1_mod')
+        # net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
+        net = slim.conv2d(inputs, 32, [3, 3], scope='conv1_mod')
 
         net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
                              bins_per_octave=BINS_PER_OCTAVE)
@@ -104,9 +104,8 @@ def get_model(placeholders, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
         output = conv_net_kelz_modified(placeholders[DATA])
 
     # loss
-    loss = log_loss(placeholders[GROUND_TRUTH], output, onset=onset)
-    if not onset:
-        loss = loss * placeholders[GROUND_WEIGHTS]
+    loss = log_loss(placeholders, output, onset=onset)
+
 
 
     # optimizer
@@ -182,7 +181,7 @@ def get_phase_train_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
 
 
 # Taken from tensorflow log_loss implementation to tweak its definition
-def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
+def log_loss(placeholders, predictions, weights=1.0, epsilon=1e-7, scope=None,
              loss_collection=ops.GraphKeys.LOSSES,
              reduction=tf.losses.Reduction.SUM_BY_NONZERO_WEIGHTS, onset=False):
     """Adds a Log Loss term to the training procedure.
@@ -196,7 +195,9 @@ def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
     `weights`.
 
     Args:
-      labels: The ground truth output tensor, same dimensions as 'predictions'.
+      placeholders:
+        [GROUND_TRUTH]: The ground truth output tensor, same dimensions as 'predictions'.
+        [GROUND_WEIGHT]: The weight to attribute to the loss, same dimensions as 'predictions'.
       predictions: The predicted outputs.
       weights: Optional `Tensor` whose rank is either 0, or the same rank as
         `labels`, and must be broadcastable to `labels` (i.e., all dimensions must
@@ -215,6 +216,7 @@ def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
         if the shape of `weights` is invalid.  Also if `labels` or `predictions`
         is None.
     """
+    labels = placeholders[GROUND_TRUTH]
     if labels is None:
         raise ValueError("labels must not be None.")
     if predictions is None:
@@ -229,5 +231,6 @@ def log_loss(labels, predictions, weights=1.0, epsilon=1e-7, scope=None,
             labels,
             fact_loss * math_ops.log(predictions + epsilon)) - math_ops.multiply(
             (1 - labels), math_ops.log(1 - predictions + epsilon))
+        losses = losses * placeholders[GROUND_WEIGHTS]
         return tf.losses.compute_weighted_loss(
             losses, weights, scope, loss_collection, reduction=reduction)

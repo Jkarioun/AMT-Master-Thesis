@@ -48,6 +48,7 @@ TOO_LONG_MIN = FRAME_PER_SEC * 2
 TOO_LONG_MAX = FRAME_PER_SEC * 5
 
 # debug parameters
+USE_ENSTDk = False
 ONSET = True
 TRAINING = True
 TRAIN_FROM_LAST = False

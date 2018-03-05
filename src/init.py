@@ -25,7 +25,7 @@ def init_path_lists():
     for zipfile_name in [f for f in os.listdir(PATH_MAPS) if f.endswith('.zip')]:
         with ZipFile(PATH_MAPS + zipfile_name) as zipfile:
             for path in zipfile.namelist():
-                if len(path.split("/")) > 1:
+                if len(path.split("/")) > 1 and (USE_ENSTDk or not path[:3] == "ENS"):
                     if path.split("/")[1] == 'MUS':
                         append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
                     else:
