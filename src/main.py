@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Test
     saver = tf.train.Saver()
     with tf.Session() as sess:
-        saver.restore(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
+        saver.restore(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
         for i in range(1):
             test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, rand_seed=i, create_images=True,
                  onset=ONSET)

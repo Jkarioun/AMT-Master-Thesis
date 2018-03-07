@@ -22,22 +22,22 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         os.makedirs(PATH_VISUALISATION + folder)
 
     if create_images:
-        do_image(kelz_pred[0].T, "01Kelz", folder)
-        do_image(ground_truth_batch_frame[0].T > 0, "02Ground_Truth_Frame", folder)
-        do_image(our_pred[0].T, "03Mod", folder)
-        do_image(data_batch[0][:, :, 0].T * 3, "04Input", folder)
-        do_image(ground_truth_batch_onset[0].T > 0, "05Ground_Truth_Onset", folder)
-        do_image(((ground_truth_batch_onset[0].T > 0).astype(int) + (ground_truth_batch_frame[0].T > 0)) / 2,
+        do_image(kelz_pred[0], "01Kelz", folder)
+        do_image(ground_truth_batch_frame[0] > 0, "02Ground_Truth_Frame", folder)
+        do_image(our_pred[0], "03Mod", folder)
+        do_image(data_batch[0][:, :, 0] * 3, "04Input", folder)
+        do_image(ground_truth_batch_onset[0] > 0, "05Ground_Truth_Onset", folder)
+        do_image(((ground_truth_batch_onset[0] > 0).astype(int) + (ground_truth_batch_frame[0].T > 0)) / 2,
                  "05Ground_Truth_Onset_And_frame", folder)
-        do_image((ground_truth_batch[0].T - our_pred[0].T + 1) / 2, "06Ground_Truth__Mod", folder)
-        do_image((ground_truth_batch[0].T - kelz_pred[0].T + 1) / 2, "07Ground_Truth__Kelz", folder)
-        do_image(our_pred[0].T > 0.5, "08Mod_treshold", folder)
-        do_image(kelz_pred[0].T > 0.5, "09Kelz_treshold", folder)
+        do_image((ground_truth_batch[0] - our_pred[0] + 1) / 2, "06Ground_Truth__Mod", folder)
+        do_image((ground_truth_batch[0] - kelz_pred[0] + 1) / 2, "07Ground_Truth__Kelz", folder)
+        do_image(our_pred[0] > 0.5, "08Mod_treshold", folder)
+        do_image(kelz_pred[0] > 0.5, "09Kelz_treshold", folder)
 
-        compare_tresh = np.empty((kelz_pred.shape[2] * 2, kelz_pred.shape[1]))
+        compare_tresh = np.empty((kelz_pred.shape[1], kelz_pred.shape[2] * 2))
         place = np.linspace(0, kelz_pred.shape[2] * 2 - 2, kelz_pred.shape[2], dtype=int)
-        compare_tresh[place, :] = -ground_truth_batch[0].T
-        compare_tresh[place + 1, :] = our_pred[0].T > 0.5
+        compare_tresh[:, place] = -ground_truth_batch[0]
+        compare_tresh[:, place + 1] = our_pred[0] > 0.5
         do_image((compare_tresh + 1) / 2, "10compare_tresh", folder)
 
     logging.info("[model=kelz][measure=accuracy][onset=%r]: %f" % (
@@ -57,7 +57,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
     with tf.Session() as sess:
         writer = tf.summary.FileWriter("..\\tmp\\output", sess.graph)
         if TRAIN_FROM_LAST:
-            saver.restore(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
+            saver.restore(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
         else:
             sess.run(init_op)
 
@@ -84,12 +84,12 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
 
             if (i + 1) % 10 == 0:
                 # Save
-                saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
+                saver.save(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
             if (i + 1) % 50 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
                      folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET,
                      create_images=((i + 1) % 5000 == 0))
 
         # Save
-        saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
+        saver.save(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
         writer.close()

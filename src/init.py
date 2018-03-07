@@ -14,7 +14,7 @@ def init():
     init_path_lists()
     create_folders()
     # Logger config
-    logging.basicConfig(filename=PATH_LOGS + '%s.log' % CONFIG_NAME, level=logging.DEBUG, \
+    logging.basicConfig(filename=PATH_LOGS + CONFIG_NAME + '.log', level=logging.DEBUG,
                         format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 

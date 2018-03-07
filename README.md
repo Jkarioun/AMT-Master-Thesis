@@ -1,6 +1,6 @@
 # Authors
 
-We suppose that MAPS is in data/MAPS
+We suppose that the MAPS dataset is in data/MAPS
 
 KARIOUN Jaafar
 TIHON Simon

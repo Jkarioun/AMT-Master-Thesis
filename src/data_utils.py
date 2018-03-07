@@ -1,8 +1,14 @@
 from config import *
 from init import init
+from utils import do_image
 
 
 def wav_to_CQT(file):
+    """ Computes the CQT of a signal.
+
+    :param file: file-like object following the .wav format.
+    :return: the CQT of the signal in a numpy array with the form [frame, pitch].
+    """
     tmp = io.BytesIO(file.read())
     y, sr = sf.read(tmp)
     y = librosa.core.to_mono(y.T)
@@ -15,8 +21,13 @@ def wav_to_CQT(file):
 
 
 def display_CQT(cqt, sr):
+    """ Displays the CQT of a signal.
+
+    :param cqt: numpy array of a CQT with the form [frame, pitch].
+    :param sr: sampling rate of the CQT.
+    """
     if DISPLAY:
-        librosa.display.specshow(librosa.amplitude_to_db(cqt, ref=np.max), sr=sr, x_axis='time', y_axis='cqt_note')
+        librosa.display.specshow(librosa.amplitude_to_db(cqt.T, ref=np.max), sr=sr, x_axis='time', y_axis='cqt_note')
         plt.colorbar(format='%+2.0f dB')
         plt.title('Constant-Q power spectrum')
         plt.show()
@@ -25,6 +36,12 @@ def display_CQT(cqt, sr):
 
 
 def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
+    """ Creates an image that allows easy midi comparison.
+
+    :param gold_MIDI_path: path to the first midi file to compare.
+    :param pred_MIDI_path: path to the second midi file to compare.
+    :param output_path: path of the resulting image.
+    """
     PIX_PER_PITCH = 15
     MIN_PITCH = 21
     MAX_PITCH = 108
@@ -80,9 +97,11 @@ def compare_midi(gold_MIDI_path, pred_MIDI_path, output_path):
 
 
 def midi_file_to_tensor(file):
-    """ Returns the information of the midi file in the form
-    output[onset, frame, pitch] =
-        onset_velocity_during_this_frame if onset==1 else pitch_velocity_during_this_frame
+    """Reads a midi file and returns its content as a tensor
+
+    :param file: file-like object following the midi format. The file must contain only one instrument.
+    :return: a tensor of the form output[onset, frame, pitch] =
+        onset_velocity_during_this_frame if onset==1 else pitch_velocity_during_this_frame.
     """
     midi = pm.PrettyMIDI(io.BytesIO(file.read()))
     frames = math.floor(midi.get_end_time() * FRAME_PER_SEC) + 1
@@ -93,28 +112,45 @@ def midi_file_to_tensor(file):
     return output
 
 
-def next_batch(i, train=True):
-    np.random.seed(i)
-    tf.set_random_seed(i)
+def next_batch(seed, train=True):
+    """ Creates a batch from the MAPS dataset, concatenating sub_batches until expected batch size is obtained.
+    init.init() must be called before use.
+
+    :param seed: seed for the randomness of the batch creation.
+    :param train: True if a training batch is required, False if a testing batch is required.
+    :return: the input (1,#frame,TOTAL_BIN,1), framewise activation output (1,#frame,PIANO_PITCHES)
+            and onset activation output (1,#frame,PIANO_PITCHES)
+    """
+    np.random.seed(seed)
+    tf.set_random_seed(seed)
     data_batch, ground_truth_batch_frame, ground_truth_batch_onset = util_next_batch(train=train)
+
+    # appends sub_batches until there are enough frames
     while data_batch.shape[0] <= MIN_FRAME_PER_BATCH:
         inputs, outputs_frame, outputs_onset = util_next_batch(train=train)
         data_batch = np.concatenate((data_batch, inputs))
         ground_truth_batch_frame = np.concatenate((ground_truth_batch_frame, outputs_frame))
         ground_truth_batch_onset = np.concatenate((ground_truth_batch_onset, outputs_onset))
 
+    # suppresses exceeding frames
     if data_batch.shape[0] > MAX_FRAME_PER_BATCH:
         data_batch = data_batch[:MAX_FRAME_PER_BATCH]
         ground_truth_batch_frame = ground_truth_batch_frame[:MAX_FRAME_PER_BATCH]
         ground_truth_batch_onset = ground_truth_batch_onset[:MAX_FRAME_PER_BATCH]
+
     return np.expand_dims(data_batch, axis=0), \
            np.expand_dims(ground_truth_batch_frame, axis=0), \
            np.expand_dims(ground_truth_batch_onset, axis=0)
 
 
 def util_next_batch(train=True, music_pair=None):
-    """ Returns the next batch for training.
-    Choose the music at random if music_pair is None.
+    """ Creates a sub_batch from a single MAPS music.
+
+    :param train: True if a training batch is required, False if a testing batch is required.
+    :param music_pair: The music from which to do the sub_batch (of the form (path_to_zip, path_from_zip_to_music)).
+                        If set to None, the music is chosen at random.
+    :return: the input (#frame,TOTAL_BIN,1), framewise activation output (#frame,PIANO_PITCHES)
+            and onset activation output (#frame,PIANO_PITCHES)
     """
     if music_pair is not None:
         pair = music_pair
@@ -127,6 +163,7 @@ def util_next_batch(train=True, music_pair=None):
         print(pair[0] + "   " + pair[1])
         data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
         data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+
         # expected output
         unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"))
         ground_truth_batch_frame = np.zeros((data_batch.shape[0], PIANO_PITCHES))
@@ -144,9 +181,6 @@ if __name__ == '__main__':
 
         midi_tensor = midi_file_to_tensor(
             zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"))
-        if DISPLAY:
-            plt.imshow(midi_tensor[0])
-            plt.show()
-        else:
-            print("DISPLAY is set to False")
-    compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_VISUALISATION + "test.PNG")
+        show_images = True
+        do_image(((midi_tensor[0] > 0).astype(float) + (midi_tensor[1] > 0))/2, "debug", PATH_DEBUG[:-1], False)
+    compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_DEBUG + "test.PNG")

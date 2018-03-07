@@ -36,7 +36,15 @@ def onsets_and_frames_to_weights(onsets, frames, onset):
 
 
 def do_image(data, title, folder, visualization_path=True):
+    """
 
+    :param data: [frame, pitch]
+    :param title:
+    :param folder:
+    :param visualization_path:
+    :return:
+    """
+    data = data.T
     im = Image.new("L", (len(data[0]), len(data)))
     im.putdata([item * 255 for sublist in data[::-1] for item in sublist])
     im.save((PATH_VISUALISATION if visualization_path else "") + folder + '/' + title + '.png')
