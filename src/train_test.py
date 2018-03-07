@@ -15,7 +15,8 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
                                                                                placeholders[
                                                                                    GROUND_TRUTH]: ground_truth_batch,
                                                                                placeholders[
-                                                                                   GROUND_WEIGHTS]: ground_weights})
+                                                                                   GROUND_WEIGHTS]: ground_weights,
+                                                                               placeholders[IS_TRAINING]: False})
 
     if not os.path.exists(PATH_VISUALISATION + folder):
         os.makedirs(PATH_VISUALISATION + folder)
@@ -67,7 +68,8 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
             kelz_loss_value, _, our_loss_value, _ = sess.run([kelz_loss, kelz_train, our_loss, our_train],
                                                              feed_dict={placeholders[DATA]: data_batch,
                                                                         placeholders[GROUND_TRUTH]: ground_truth_batch,
-                                                                        placeholders[GROUND_WEIGHTS]: ground_weights})
+                                                                        placeholders[GROUND_WEIGHTS]: ground_weights,
+                                                                        placeholders[IS_TRAINING]: True})
 
             logging.info("[iteration=%d][model=kelz][measure=log_loss][onset=%r]: %f" % (i, onset, kelz_loss_value))
             logging.info("[iteration=%d][model=mod][measure=log_loss][onset=%r]: %f" % (i, onset, our_loss_value))
@@ -82,7 +84,7 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
             if (i+1) % 10 == 0:
                 # Save
                 saver.save(sess, super_path)
-            if (i+1) % 500 == 0:
+            if (i+1) % 50 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
                      folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET)
 

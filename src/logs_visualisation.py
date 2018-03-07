@@ -11,6 +11,9 @@ if __name__ == '__main__':
     train_ll_kelz = []
     train_ll_mod = []
 
+    accuracy_mod = []
+    accuracy_kelz = []
+
     patterns = {
         'iteration': re.compile('\[iteration=(\d+)\]'),
         'measure': re.compile('\[measure=(\w+)\]'),
@@ -46,10 +49,11 @@ if __name__ == '__main__':
 
             # train
             if iter is not None:
+                measure = float(line.split(' ')[-1])
                 if attr(line, 'model') == 'kelz' and attr(line, 'measure') == 'log_loss':
-                    train_ll_kelz.append(math.log(float(line.split(' ')[-1])))
+                    train_ll_kelz.append(math.log(measure))
                 elif attr(line, 'model') == 'mod' and attr(line, 'measure') == 'log_loss':
-                    train_ll_mod.append(math.log(float(line.split(' ')[-1])))
+                    train_ll_mod.append(math.log(measure))
             # test
             else:
                 if attr(line, 'model') == 'mod' and attr(line, 'measure') == 'log_loss':
@@ -61,6 +65,12 @@ if __name__ == '__main__':
                         test_ll_kelz.append(math.log(float(line.split(' ')[-1])))
                         last_line_kelz_test = True
                 # elif attr(line, 'model') == 'kelz' and attr(line, 'measure') == 'log_loss':
+                if attr(line, 'model') == 'mod' and attr(line, 'measure') == 'accuracy':
+                    measure = float(line.split(' ')[-1])
+                    accuracy_mod.append(measure)
+                elif attr(line, 'model') == 'kelz' and attr(line, 'measure') == 'accuracy':
+                    measure = float(line.split(' ')[-1])
+                    accuracy_kelz.append(measure)
 
 
             line_num += 1
@@ -79,8 +89,8 @@ if __name__ == '__main__':
 
     plt.show()
 
-    plt.plot(range(len(test_ll_kelz)), test_ll_kelz, '--', \
-             range(len(test_ll_kelz)), test_ll_mod, '-')
+    plt.plot(range(len(test_ll_kelz)-1), test_ll_kelz[1:], '--',
+             range(len(test_ll_kelz)-1), test_ll_mod, '-')
 
     plt.legend(['kelz', 'our model'], loc='upper right')
     plt.ylabel('Log loss')
@@ -88,3 +98,17 @@ if __name__ == '__main__':
     plt.title('Test loss evolution over training')
 
     plt.show()
+
+    # accuracy
+    accuracy_mod = accuracy_mod[1:]
+    accuracy_kelz = accuracy_kelz[1:]
+    plt.plot(range(len(accuracy_kelz)), accuracy_kelz, '--',
+             range(len(accuracy_mod)), accuracy_mod, '-')
+
+    plt.legend(['kelz', 'our model'], loc='upper right')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Steps (500 training iterations per step)')
+    plt.title('Test accuracy evolution')
+
+    plt.show()
+
