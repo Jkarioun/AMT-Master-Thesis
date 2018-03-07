@@ -87,7 +87,8 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
                 saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
             if (i + 1) % 50 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
-                     folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET)
+                     folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET,
+                     create_images=((i + 1) % 5000 == 0))
 
         # Save
         saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
