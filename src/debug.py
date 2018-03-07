@@ -20,7 +20,7 @@ def dataset_vis(music_pair, debug_dir):
 
 if __name__=="__main__":
     init()
-    for i in range(len(TEST_PATHS)):
-        if 'ENS' in TEST_PATHS[i][0]:
-            dataset_vis(TEST_PATHS[i], PATH_DEBUG+"test_"+str(i))
+    for i in range(len(TRAIN_PATHS)):
+        #if 'ENS' in TEST_PATHS[i][0]:
+        dataset_vis(TRAIN_PATHS[i], PATH_DEBUG+"test_"+str(i))
 

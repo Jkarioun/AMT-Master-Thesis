@@ -12,7 +12,7 @@ import soundfile as sf
 import logging
 from strings import *
 
-DISPLAY = False
+DISPLAY = True
 
 if DISPLAY:
     import librosa.display
@@ -49,11 +49,11 @@ TOO_LONG_MAX = FRAME_PER_SEC * 5
 
 # debug parameters
 USE_ENSTDk = False
-ONSET = True
-TRAINING = True
+ONSET = False
+TRAINING = False
 TRAIN_FROM_LAST = False
 super_path = "../tmp/%s.ckpt" % CONFIG_NAME
-show_images = False
+show_images = True
 RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
 MIN_FRAME_PER_BATCH = 1000

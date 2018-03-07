@@ -27,5 +27,5 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         saver.restore(sess, super_path)
         for i in range(1):
-            test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, rand_seed=i, create_images=False,
+            test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, rand_seed=i, create_images=True,
                  onset=ONSET)

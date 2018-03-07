@@ -24,7 +24,7 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         do_image(kelz_pred[0].T, "01Kelz", folder)
         do_image(ground_truth_batch_frame[0].T > 0, "02Ground_Truth_Frame", folder)
         do_image(our_pred[0].T, "03Mod", folder)
-        do_image(data_batch[0][:, :, 0].T, "04Input", folder)
+        do_image(data_batch[0][:, :, 0].T*3, "04Input", folder)
         do_image(ground_truth_batch_onset[0].T > 0, "05Ground_Truth_Onset", folder)
         do_image(((ground_truth_batch_onset[0].T > 0).astype(int) + (ground_truth_batch_frame[0].T > 0)) / 2,
                  "05Ground_Truth_Onset_And_frame", folder)
