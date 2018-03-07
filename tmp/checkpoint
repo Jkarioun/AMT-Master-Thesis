@@ -1,2 +1,0 @@
-model_checkpoint_path: "onsets_accuracy_allharmonic.ckpt"
-all_model_checkpoint_paths: "onsets_accuracy_allharmonic.ckpt"

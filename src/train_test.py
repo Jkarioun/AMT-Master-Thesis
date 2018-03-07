@@ -25,7 +25,7 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         do_image(kelz_pred[0].T, "01Kelz", folder)
         do_image(ground_truth_batch_frame[0].T > 0, "02Ground_Truth_Frame", folder)
         do_image(our_pred[0].T, "03Mod", folder)
-        do_image(data_batch[0][:, :, 0].T*3, "04Input", folder)
+        do_image(data_batch[0][:, :, 0].T * 3, "04Input", folder)
         do_image(ground_truth_batch_onset[0].T > 0, "05Ground_Truth_Onset", folder)
         do_image(((ground_truth_batch_onset[0].T > 0).astype(int) + (ground_truth_batch_frame[0].T > 0)) / 2,
                  "05Ground_Truth_Onset_And_frame", folder)
@@ -41,10 +41,10 @@ def test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders, folder=
         do_image((compare_tresh + 1) / 2, "10compare_tresh", folder)
 
     logging.info("[model=kelz][measure=accuracy][onset=%r]: %f" % (
-    onset, accuracy(ground_truth_batch[0] == 1, kelz_pred[0] > 0.5)))
+        onset, accuracy(ground_truth_batch[0] == 1, kelz_pred[0] > 0.5)))
     logging.info(
         "[model=mod][measure=accuracy][onset=%r]: %f" % (
-        onset, accuracy(ground_truth_batch_onset[0] > 0., our_pred[0] > 0.5)))
+            onset, accuracy(ground_truth_batch_onset[0] > 0., our_pred[0] > 0.5)))
 
     logging.info("[model=kelz][measure=log_loss][onset=%r]: %f" % (onset, kelz_loss_value))
     logging.info("[model=mod][measure=log_loss][onset=%r]: %f" % (onset, our_loss_value))
@@ -57,14 +57,15 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
     with tf.Session() as sess:
         writer = tf.summary.FileWriter("..\\tmp\\output", sess.graph)
         if TRAIN_FROM_LAST:
-            saver.restore(sess, super_path)
+            saver.restore(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
         else:
             sess.run(init_op)
 
         for i in range(num_batches):
             data_batch, ground_truth_batch_frame, ground_truth_batch_onset = next_batch(i + rand_seed, train=True)
             ground_truth_batch = ((ground_truth_batch_onset if onset else ground_truth_batch_frame) > 0).astype(int)
-            ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame, onset=onset)
+            ground_weights = onsets_and_frames_to_weights(ground_truth_batch_onset, ground_truth_batch_frame,
+                                                          onset=onset)
             kelz_loss_value, _, our_loss_value, _ = sess.run([kelz_loss, kelz_train, our_loss, our_train],
                                                              feed_dict={placeholders[DATA]: data_batch,
                                                                         placeholders[GROUND_TRUTH]: ground_truth_batch,
@@ -74,20 +75,20 @@ def train(kelz_model, kelz_loss, kelz_train, our_model, our_loss, our_train, pla
             logging.info("[iteration=%d][model=kelz][measure=log_loss][onset=%r]: %f" % (i, onset, kelz_loss_value))
             logging.info("[iteration=%d][model=mod][measure=log_loss][onset=%r]: %f" % (i, onset, our_loss_value))
             logging.info("[iteration=%d][measure=ratio][onset=%r]: %f" % (
-            i, onset, our_loss_value / kelz_loss_value))
+                i, onset, our_loss_value / kelz_loss_value))
 
             print("Iteration %d" % (i + 1))
             print("kelz: " + str(kelz_loss_value))
             print("mod:  " + str(our_loss_value))
             print("ratio: " + str(our_loss_value / kelz_loss_value))
 
-            if (i+1) % 10 == 0:
+            if (i + 1) % 10 == 0:
                 # Save
-                saver.save(sess, super_path)
-            if (i+1) % 50 == 0:
+                saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
+            if (i + 1) % 50 == 0:
                 test(sess, kelz_model, kelz_loss, our_model, our_loss, placeholders,
                      folder=CONFIG_NAME + '/' + str(rand_seed) + "_" + str(i), onset=ONSET)
 
         # Save
-        saver.save(sess, super_path)
+        saver.save(sess, PATH_CHECKPOINTS + "%s.ckpt" % CONFIG_NAME)
         writer.close()

@@ -20,8 +20,6 @@ if DISPLAY:
 
 CONFIG_NAME = 'hybrid_onsets_without_dropout'
 
-logging.basicConfig(filename='../logs/%s.log' % CONFIG_NAME, level=logging.DEBUG, \
-                    format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 FIRST_LAYER_HARMONIC = False
 PIANO_MIN_PITCH = 21
@@ -44,16 +42,14 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 
-
 TOO_LONG_MIN = FRAME_PER_SEC * 2
 TOO_LONG_MAX = FRAME_PER_SEC * 5
 
 # debug parameters
 USE_ENSTDk = False
 ONSET = False
-TRAINING = False
+TRAINING = True
 TRAIN_FROM_LAST = False
-super_path = "../tmp/%s.ckpt" % CONFIG_NAME
 show_images = True
 RANDOM_DEBUG = 0
 NUM_BATCHES = 100000
@@ -61,15 +57,17 @@ MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
 
 # Paths
+PATH_OUTPUT = "../outputs/" + CONFIG_NAME
 PATH_DEBUG = "../data/debug/"
-PATH_PREDICT = "../data/predict/"
-PATH_TEST = "../data/test/"
-PATH_TRAIN = "../data/train/"
-PATH_VISUALISATION = "../data/visualisation/"
+PATH_VISUALISATION = PATH_OUTPUT + "/visualisation/"
+PATH_TENSORBOARD = PATH_OUTPUT + "/tensorboard/"
+PATH_LOGS = PATH_OUTPUT + "/logs/"
 PATH_MAPS = "../data/MAPS/"
-PATH_LOGS = "../logs/"
+PATH_CHECKPOINTS = PATH_OUTPUT + "/ckpt/"
 TRAIN_PATHS = []
 TEST_PATHS = []
 
 # Model parameters
 DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
+
+

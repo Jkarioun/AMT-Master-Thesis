@@ -106,9 +106,7 @@ def get_model(placeholders, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
         output = conv_net_kelz_modified(placeholders)
 
     # loss
-    loss = tf.losses.log_loss(placeholders, output, weights=placeholders[GROUND_WEIGHTS])
-
-
+    loss = tf.losses.log_loss(placeholders[GROUND_TRUTH], output, weights=placeholders[GROUND_WEIGHTS])
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)

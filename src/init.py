@@ -12,6 +12,10 @@ def init():
     tf.set_random_seed(42)
 
     init_path_lists()
+    create_folders()
+    # Logger config
+    logging.basicConfig(filename=PATH_LOGS + '%s.log' % CONFIG_NAME, level=logging.DEBUG, \
+                        format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
 
 def append_to(a_list, zipfile_name, path):
@@ -30,6 +34,14 @@ def init_path_lists():
                         append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
                     else:
                         append_to(TRAIN_PATHS, PATH_MAPS + zipfile_name, path)
+
+
+def create_folders():
+    if not os.path.exists(PATH_VISUALISATION):
+        os.makedirs(PATH_VISUALISATION)
+        os.makedirs(PATH_LOGS)
+        os.makedirs(PATH_TENSORBOARD)
+        os.makedirs(PATH_CHECKPOINTS)
 
 
 if __name__ == '__main__':
