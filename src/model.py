@@ -65,24 +65,26 @@ def conv_net_kelz(inputs):
         return net
 
 
-def conv_net_kelz_modified(inputs):
+def conv_net_kelz_modified(placeholders):
     """Builds the ConvNet from Kelz 2016."""
     with slim.arg_scope(
             [slim.conv2d, slim.fully_connected],
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)):
-        # net = harmonic_layer(inputs, num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
-        net = slim.conv2d(inputs, 32, [3, 3], scope='conv1_mod')
+        if FIRST_LAYER_HARMONIC:
+            net = harmonic_layer(placeholders[DATA], num_outputs=32, scope='conv1_mod', bins_per_octave=BINS_PER_OCTAVE)
+        else:
+            net = slim.conv2d(placeholders[DATA], 32, [3, 3], scope='conv1_mod')
 
         net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
                              bins_per_octave=BINS_PER_OCTAVE)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2_mod')
-        net = slim.dropout(net, 0.25, scope='dropout2_mod')
+        net = slim.dropout(net, 0.25, scope='dropout2_mod', is_training=placeholders[IS_TRAINING])
 
         net = harmonic_layer(net, 64, scope='conv3_mod', bins_per_octave=BINS_PER_OCTAVE / 2)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3_mod')
-        net = slim.dropout(net, 0.25, scope='dropout3_mod')
+        net = slim.dropout(net, 0.25, scope='dropout3_mod', is_training=placeholders[IS_TRAINING])
 
         # Flatten while preserving batch and time dimensions.
         dims = tf.shape(net)
@@ -90,7 +92,7 @@ def conv_net_kelz_modified(inputs):
                                net.shape[2].value * net.shape[3].value), 'flatten4_mod')
 
         net = slim.fully_connected(net, 512, scope='fc5_mod')
-        net = slim.dropout(net, 0.5, scope='dropout5_mod')
+        net = slim.dropout(net, 0.5, scope='dropout5_mod', is_training=placeholders[IS_TRAINING])
 
         net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6_mod')
 
@@ -101,7 +103,7 @@ def get_model(placeholders, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
     if kelz:
         output = conv_net_kelz(placeholders[DATA])
     else:
-        output = conv_net_kelz_modified(placeholders[DATA])
+        output = conv_net_kelz_modified(placeholders)
 
     # loss
     loss = log_loss(placeholders, output, onset=onset)

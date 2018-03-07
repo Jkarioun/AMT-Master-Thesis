@@ -12,7 +12,9 @@ if __name__ == '__main__':
     data = tf.placeholder(tf.float32, shape=[None, None, TOTAL_BIN, 1], name='input')
     ground_truth = tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES])
     ground_weights = tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES])
-    placeholders = {DATA: data, GROUND_TRUTH: ground_truth, GROUND_WEIGHTS: ground_weights}
+    is_training = tf.placeholder(tf.bool, shape=())
+    placeholders = {DATA: data, GROUND_TRUTH: ground_truth, GROUND_WEIGHTS: ground_weights,
+                    IS_TRAINING: is_training}
 
     kelz_model, kelz_loss, kelz_train = get_model(placeholders, kelz=True, onset=ONSET)
     # our_models, our_losses, our_trains = get_phase_train_model(data, ground_truth)

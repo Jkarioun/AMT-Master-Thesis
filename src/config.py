@@ -18,11 +18,12 @@ if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
 
-CONFIG_NAME = 'onsets_accuracy'
+CONFIG_NAME = 'hybrid_onsets_without_dropout'
 
 logging.basicConfig(filename='../logs/%s.log' % CONFIG_NAME, level=logging.DEBUG, \
                     format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')
 
+FIRST_LAYER_HARMONIC = False
 PIANO_MIN_PITCH = 21
 PIANO_MAX_PITCH = 108
 ANALYSIS_UPPER_PITCH = 0  # supplementary pitches for harmonics
