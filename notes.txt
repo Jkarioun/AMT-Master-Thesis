@@ -14,6 +14,7 @@ sklearn
 todo :
 étendre le base temporelle comme wavnet
 
+fermer les files ouvertes (?)
 
 Partial training :
     optimizer = tf.train.AdagradOptimzer(0.01)

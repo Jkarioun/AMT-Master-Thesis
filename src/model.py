@@ -3,18 +3,30 @@ from tensorflow.python.ops import math_ops
 from tensorflow.python.framework import ops
 
 
-def harmonic_mapping(i, bins_per_octave, OOV_pitch):
-    base_position = i // CONV_SIZE
-    relative_position = round(math.log(HARMONIC_RELATIVES[i % CONV_SIZE], 2) * bins_per_octave)
-    ret = base_position + relative_position
-    return ret if 0 <= ret < OOV_pitch else OOV_pitch
+def harmonic_layer(inputs, num_outputs, normalizer_fn=None, scope=None, bins_per_octave=BINS_PER_OCTAVE):
+    """ Creates the harmonic convolution layer.
 
+    :param inputs: input of the layer of the form [batch, frame, pitch, filters].
+    :param num_outputs: number of output filters.
+    :param normalizer_fn: cfr. slim.conv2d
+    :param scope: cfr. slim.conv2d TODO : scope should take the entire layer
+    :param bins_per_octave: number of bins per octave.
+    :return: A tensorflow tensor of the form [batch, frame, pitch, num_outputs]
+    """
 
-def harmonic_layer(inputs,
-                   num_outputs,
-                   normalizer_fn=None,
-                   scope=None,
-                   bins_per_octave=BINS_PER_OCTAVE):
+    def harmonic_mapping(pos, out_of_range_pitch):
+        """ Computes the pitch neuron that should be placed at position pos.
+
+        :param pos: position for which we want a mapping.
+        :param out_of_range_pitch: number of pitch neurons, which should be equal to the pitch number
+                                   of the extra null-neuron.
+        :return: The pitch neuron number to put at position pos.
+        """
+        base_position = pos // CONV_SIZE
+        relative_position = round(math.log(HARMONIC_RELATIVES[pos % CONV_SIZE], 2) * bins_per_octave)
+        ret = base_position + relative_position
+        return ret if 0 <= ret < out_of_range_pitch else out_of_range_pitch
+
     with tf.name_scope("harmonic_layer"):
         # Add an OOV pitch for zero padding (used during reordering)
         padding = tf.constant([[0, 0], [1, 1], [0, 1], [0, 0]])
@@ -22,21 +34,17 @@ def harmonic_layer(inputs,
 
         # Copying (up to CONV_SIZE time) and reordering the data to use a conventional convolutive kernel
         pitch_first = tf.transpose(padded, [2, 0, 1, 3])
-        reordering_indices = [[harmonic_mapping(i, bins_per_octave, int(inputs.shape[2]))] for i in
-                              range(inputs.shape[2] * CONV_SIZE)]
+        reordering_indices = [[harmonic_mapping(i, int(inputs.shape[2]))] for i in range(inputs.shape[2] * CONV_SIZE)]
         reordered_pitch_first = tf.gather_nd(pitch_first, indices=reordering_indices, name='Reordering')
         reordered = tf.transpose(reordered_pitch_first, [1, 2, 0, 3])
 
         output = slim.conv2d(reordered, num_outputs=num_outputs, kernel_size=[3, CONV_SIZE], stride=[1, CONV_SIZE],
-                             padding='VALID',
-                             scope=scope,
-                             normalizer_fn=normalizer_fn)
+                             padding='VALID', scope=scope, normalizer_fn=normalizer_fn)
     return output
 
 
-# Copied from Magenta
 def conv_net_kelz(inputs):
-    """Builds the ConvNet from Kelz 2016."""
+    """Builds the ConvNet from Kelz 2016, mainly copied from Magenta."""
     with slim.arg_scope(
             [slim.conv2d, slim.fully_connected],
             activation_fn=tf.nn.relu,
@@ -66,7 +74,13 @@ def conv_net_kelz(inputs):
 
 
 def conv_net_kelz_modified(placeholders):
-    """Builds the ConvNet from Kelz 2016."""
+    """Builds the ConvNet from Kelz 2016 with introduction of the harmonic_layer instead of the conventional convolution
+    layer.
+
+    :param placeholders: [DATA]: input of the net of the form [batch, frame, pitch, 1].
+                         [IS_TRAINING]: True if training, else False.
+    :return: Tensorflow tensor of the form [batch, frame, pitch] that corresponds to the prediction.
+    """
     with slim.arg_scope(
             [slim.conv2d, slim.fully_connected],
             activation_fn=tf.nn.relu,
@@ -99,24 +113,43 @@ def conv_net_kelz_modified(placeholders):
         return net
 
 
-def get_model(placeholders, kelz=False, hparams=DEFAULT_HPARAMS, onset=False):
-    if kelz:
-        output = conv_net_kelz(placeholders[DATA])
+def get_model(hparams=DEFAULT_HPARAMS):
+    """ Creates the whole network.
+
+    :param hparams: hparams.learning_rate should be the learning rate of the model.
+    :return: placeholders: [DATA]: input of the net of the form [batch, frame, pitch, 1].
+                           [GROUND_TRUTH]: ground_truth to be predicted of the form [batch, frame, pitch].
+                           [GROUND_WEIGHTS]: weights to use to weight the loss, with same dimensions as [GROUND_TRUTH].
+                           [IS_TRAINING]: boolean to say if the model is training or predicting.
+             model: dictionary of tensorflow tensors corresponding to:
+                    [PRED]: the prediction made by the model [batch, frame, pitch]
+                    [LOSS]: the loss of the prediction (scalar)
+                    [TRAIN]: the training neuron of the model (no return value).
+    """
+    placeholders = {DATA: tf.placeholder(tf.float32, shape=[None, None, TOTAL_BIN, 1], name='input'),
+                    GROUND_TRUTH: tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES]),
+                    GROUND_WEIGHTS: tf.placeholder(tf.float32, shape=[None, None, PIANO_PITCHES]),
+                    IS_TRAINING: tf.placeholder(tf.bool, shape=())}
+
+    model = {}
+
+    if KELZ_MODEL:
+        model[PRED] = conv_net_kelz(placeholders[DATA])
     else:
-        output = conv_net_kelz_modified(placeholders)
+        model[PRED] = conv_net_kelz_modified(placeholders)
 
     # loss
-    loss = tf.losses.log_loss(placeholders[GROUND_TRUTH], output, weights=placeholders[GROUND_WEIGHTS])
+    model[LOSS] = tf.losses.log_loss(placeholders[GROUND_TRUTH], model[PRED], weights=placeholders[GROUND_WEIGHTS])
 
     # optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
+    model[TRAIN] = optimizer.minimize(model[LOSS])
 
-    # objective
-    train = optimizer.minimize(loss)
-
-    return output, loss, train
+    return placeholders, model
 
 
+
+#experimental code.
 def get_phase_train_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
     losses = []
     outputs = []

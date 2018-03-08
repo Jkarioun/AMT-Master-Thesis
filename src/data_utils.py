@@ -118,8 +118,9 @@ def next_batch(seed, train=True):
 
     :param seed: seed for the randomness of the batch creation.
     :param train: True if a training batch is required, False if a testing batch is required.
-    :return: the input (1,#frame,TOTAL_BIN,1), framewise activation output (1,#frame,PIANO_PITCHES)
-            and onset activation output (1,#frame,PIANO_PITCHES)
+    :return: the input (1,#frame,TOTAL_BIN,1),
+             expected framewise activation output (1,#frame,PIANO_PITCHES) and
+             expected onset activation output (1,#frame,PIANO_PITCHES)
     """
     np.random.seed(seed)
     tf.set_random_seed(seed)
@@ -147,8 +148,9 @@ def util_next_batch(train=True, music_pair=None):
     """ Creates a sub_batch from a single MAPS music.
 
     :param train: True if a training batch is required, False if a testing batch is required.
-    :param music_pair: The music from which to do the sub_batch (of the form (path_to_zip, path_from_zip_to_music)).
-                        If set to None, the music is chosen at random.
+    :param music_pair: The music from which to do the sub_batch
+                       (of the form (path_to_zip, path_from_zip_to_music_without_extension)).
+                       If set to None, the music is chosen at random.
     :return: the input (#frame,TOTAL_BIN,1), framewise activation output (#frame,PIANO_PITCHES)
             and onset activation output (#frame,PIANO_PITCHES)
     """
@@ -182,5 +184,5 @@ if __name__ == '__main__':
         midi_tensor = midi_file_to_tensor(
             zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"))
         show_images = True
-        do_image(((midi_tensor[0] > 0).astype(float) + (midi_tensor[1] > 0))/2, "debug", PATH_DEBUG[:-1], False)
+        do_image(((midi_tensor[0] > 0).astype(float) + (midi_tensor[1] > 0))/2, title="debug", folder=PATH_DEBUG)
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_DEBUG + "test.PNG")
