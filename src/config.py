@@ -28,8 +28,16 @@ TRAIN_FROM_LAST = False
 show_images = False
 RANDOM_DEBUG = 0
 NUM_BATCHES = 50000
-MIN_FRAME_PER_BATCH = 10
-MAX_FRAME_PER_BATCH = 20
+MIN_FRAME_PER_BATCH = 1000
+MAX_FRAME_PER_BATCH = 2000
+
+# model parameters
+ONSET = False
+KELZ_MODEL = False
+FIRST_LAYER_HARMONIC = False
+HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
+CONV_SIZE = len(HARMONIC_RELATIVES)
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
 
 # pitch dimension parameters
 PIANO_MIN_PITCH = 21
@@ -53,14 +61,6 @@ FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 USE_ENSTDk = False
 MIN_NOTE_LENGTH_IF_SUSTAIN = FRAME_PER_SEC * 2
 MAX_NOTE_LENGTH = FRAME_PER_SEC * 5
-
-# model parameters
-ONSET = False
-KELZ_MODEL = False
-FIRST_LAYER_HARMONIC = False
-HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
-CONV_SIZE = len(HARMONIC_RELATIVES)
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
 
 # Paths
 PATH_OUTPUT = "../outputs/" + CONFIG_NAME + "/"
