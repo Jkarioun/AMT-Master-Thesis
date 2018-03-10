@@ -174,7 +174,7 @@ def util_next_batch(train=True, music_name=None):
         ground_truth_batch_frame[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[0]
         ground_truth_batch_onset = np.zeros((data_batch.shape[0], PIANO_PITCHES))
         ground_truth_batch_onset[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[1]
-        return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
+    return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
 
 
 if __name__ == '__main__':

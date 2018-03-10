@@ -26,11 +26,12 @@ def init_path_lists():
         filename_split = filename.split('.')
         name, extension = '.'.join(filename_split[:-1]), filename_split[-1]
         if extension == 'npy':
-            if 'MUS' in filename:
+            assert name + ".mid" in os.listdir(
+                PATH_MAPS_PREPROCESSED), name + ".npy haven't any corresponding midi file."
+            if 'MAPS_MUS-' == name[:9]:
                 TEST_FILENAMES.append(name)
             else:
                 TRAIN_FILENAMES.append(name)
-
 
 
 def create_folders():
@@ -46,9 +47,9 @@ def create_folders():
             else:
                 print('Directory not copied. Error: %s' % e)
 
-    assert (not TRAIN_FROM_LAST or os.path.exists(PATH_OUTPUT)),\
+    assert (not TRAIN_FROM_LAST or os.path.exists(PATH_OUTPUT)), \
         "Impossible to train from last version: no last version available for this config_name"
-    assert (TRAIN_FROM_LAST or not os.path.exists(PATH_OUTPUT)),\
+    assert (TRAIN_FROM_LAST or not os.path.exists(PATH_OUTPUT)), \
         "config_name already used for another model. Please change the name or suppress the output folder."
     if not TRAIN_FROM_LAST:
         os.makedirs(PATH_VISUALISATION)
@@ -58,6 +59,7 @@ def create_folders():
         copy(".", PATH_CODE)
     else:
         copy(".", PATH_CODE + str(int(time.time())) + "/")
+
 
 if __name__ == '__main__':
     init()

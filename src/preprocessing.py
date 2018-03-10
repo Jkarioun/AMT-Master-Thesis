@@ -29,6 +29,3 @@ for zipfile_name in [f for f in os.listdir(PATH_MAPS) if f.endswith('.zip')]:
                     target = open(PATH_MAPS_PREPROCESSED + name + '.mid', 'wb')
                     with source, target:
                         shutil.copyfileobj(source, target)
-
-
-

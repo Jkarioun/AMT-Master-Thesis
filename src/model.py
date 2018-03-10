@@ -94,11 +94,11 @@ def conv_net_kelz_modified(placeholders):
         net = harmonic_layer(net, num_outputs=32, scope='conv2_mod', normalizer_fn=slim.batch_norm,
                              bins_per_octave=BINS_PER_OCTAVE)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2_mod')
-        net = slim.dropout(net, 0.25, scope='dropout2_mod', is_training=placeholders[IS_TRAINING])
+        net = slim.dropout(net, 0.25, scope='dropout2_mod')
 
         net = harmonic_layer(net, 64, scope='conv3_mod', bins_per_octave=BINS_PER_OCTAVE / 2)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3_mod')
-        net = slim.dropout(net, 0.25, scope='dropout3_mod', is_training=placeholders[IS_TRAINING])
+        net = slim.dropout(net, 0.25, scope='dropout3_mod')
 
         # Flatten while preserving batch and time dimensions.
         dims = tf.shape(net)
@@ -106,7 +106,7 @@ def conv_net_kelz_modified(placeholders):
                                net.shape[2].value * net.shape[3].value), 'flatten4_mod')
 
         net = slim.fully_connected(net, 512, scope='fc5_mod')
-        net = slim.dropout(net, 0.5, scope='dropout5_mod', is_training=placeholders[IS_TRAINING])
+        net = slim.dropout(net, 0.5, scope='dropout5_mod')
 
         net = slim.fully_connected(net, 88, activation_fn=tf.nn.sigmoid, scope='fc6_mod')
 
@@ -133,23 +133,23 @@ def get_model(hparams=DEFAULT_HPARAMS):
 
     model = {}
 
-    if KELZ_MODEL:
-        model[PRED] = conv_net_kelz(placeholders[DATA])
-    else:
-        model[PRED] = conv_net_kelz_modified(placeholders)
+    with slim.arg_scope([slim.dropout, slim.batch_norm], is_training=placeholders[IS_TRAINING]):
+        if KELZ_MODEL:
+            model[PRED] = conv_net_kelz(placeholders[DATA])
+        else:
+            model[PRED] = conv_net_kelz_modified(placeholders)
 
-    # loss
-    model[LOSS] = tf.losses.log_loss(placeholders[GROUND_TRUTH], model[PRED], weights=placeholders[GROUND_WEIGHTS])
+        # loss
+        model[LOSS] = tf.losses.log_loss(placeholders[GROUND_TRUTH], model[PRED], weights=placeholders[GROUND_WEIGHTS])
 
-    # optimizer
-    optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
-    model[TRAIN] = optimizer.minimize(model[LOSS])
+        # optimizer
+        optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
+        model[TRAIN] = optimizer.minimize(model[LOSS])
 
     return placeholders, model
 
 
-
-#experimental code.
+# experimental code.
 def get_phase_train_model(input_data, ground_truth, hparams=DEFAULT_HPARAMS):
     losses = []
     outputs = []

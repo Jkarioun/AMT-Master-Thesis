@@ -9,7 +9,7 @@ from train_test import *
 if __name__ == '__main__':
     init()
 
-    placeholders, model = get_model(DEFAULT_HPARAMS)
+    placeholders, model = get_model(hparams=DEFAULT_HPARAMS)
 
     if TRAINING:
         train(model, placeholders, num_batches=NUM_BATCHES, rand_seed=RANDOM_DEBUG, onset=ONSET)
@@ -19,5 +19,5 @@ if __name__ == '__main__':
         with tf.Session() as sess:
             saver.restore(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
             for i in range(100):
-                test(sess, model, placeholders, rand_seed=i, create_images=True, onset=ONSET,
+                test(sess, model, placeholders, rand_seed=i, create_images=False, onset=ONSET,
                      folder=PATH_VISUALISATION + "testing/")
