@@ -27,8 +27,6 @@ def init_path_lists():
     for filename in os.listdir(PATH_MAPS_PREPROCESSED):
         if filename.endswith('.npy') and (USE_ENSTDk or 'ENSTDk' not in filename):
             name = filename[:-4]
-            assert name + ".mid" in os.listdir(PATH_MAPS_PREPROCESSED),\
-                name + ".npy haven't any corresponding midi file."
             if name.startswith('MAPS_MUS-'):
                 TEST_FILENAMES.append(name)
             else:
