@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 from init import init
 from utils import do_image

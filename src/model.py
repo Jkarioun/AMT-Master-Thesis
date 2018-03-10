@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 from tensorflow.python.ops import math_ops
 from tensorflow.python.framework import ops

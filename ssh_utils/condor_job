@@ -1,13 +1,12 @@
 # File to launch the program on the ingi server.
 
 
-#Votre script a exécuter
 Executable   = ../src$(Process)/main.py
-#Le log dans lequel tout sera indiqué
+
 Log          = ingi_logs.log
-#Les sorties. $(Process) indique le numéro du processus
+
 Output       = ingi_logs.outputfile.$(Process)
-#Permet d'exécuter le job sur les machines en x86_64. Important.
+
 requirements = Arch == "X86_64"
-#Executer 10 fois le script
+
 Queue 10

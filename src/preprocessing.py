@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 from data_utils import wav_to_CQT
 

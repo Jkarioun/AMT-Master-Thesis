@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 
 
@@ -60,17 +62,26 @@ def do_image(data, title, folder):
         plt.show()
 
 
-def testing_metrics(ground_truth, pred):
+def testing_metrics(ground_truth, pred, weight=None):
     """ Computes the TP, FP, FN and TN of the prediction.
 
     :param ground_truth: boolean tensor of the form [frame, pitch] representing the ground_truth.
     :param pred: boolean tensor with same dimensions as ground_truth representing the prediction made.
     :return: a dictionary with 4 integers: {'TP':#TP, 'FP':#FP, 'FN':#FN, 'TN':#TN} of the prediction.
     """
-    return {'TP': np.sum(np.logical_and(ground_truth, pred)),
-            'FP': np.sum(np.logical_and(np.logical_not(ground_truth), pred)),
-            'FN': np.sum(np.logical_and(ground_truth, np.logical_not(pred))),
-            'TN': np.sum(np.logical_and(np.logical_not(ground_truth), np.logical_not(pred)))}
+
+    la = np.logical_and
+
+    if weight is None:
+        return {'TP': np.sum(la(ground_truth, pred)),
+                'FP': np.sum(la(np.logical_not(ground_truth), pred)),
+                'FN': np.sum(la(ground_truth, np.logical_not(pred))),
+                'TN': np.sum(la(np.logical_not(ground_truth), np.logical_not(pred)))}
+
+    return {'TP': np.sum(la(la(ground_truth, pred), weight)),
+            'FP': np.sum(la(la(np.logical_not(ground_truth), pred), weight)),
+            'FN': np.sum(la(la(ground_truth, np.logical_not(pred)), weight)),
+            'TN': np.sum(la(la(np.logical_not(ground_truth), np.logical_not(pred)), weight))}
 
 
 def accuracy(ground_truth, pred):
