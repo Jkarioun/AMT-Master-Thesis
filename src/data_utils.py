@@ -163,7 +163,7 @@ def util_next_batch(train=True, music_name=None):
 
     # input
     data_batch = np.load(PATH_MAPS_PREPROCESSED + music_name + '.npy')
-    data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+    data_batch = np.expand_dims(data_batch[:, :TOTAL_BIN], axis=2)
 
     # expected output
     with open(PATH_MAPS_PREPROCESSED + music_name + '.mid', 'rb') as mid_file:

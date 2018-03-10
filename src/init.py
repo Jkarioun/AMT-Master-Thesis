@@ -23,12 +23,11 @@ def init_path_lists():
     """ Initialises the training and testing path list. """
 
     for filename in os.listdir(PATH_MAPS_PREPROCESSED):
-        filename_split = filename.split('.')
-        name, extension = '.'.join(filename_split[:-1]), filename_split[-1]
-        if extension == 'npy':
-            assert name + ".mid" in os.listdir(
-                PATH_MAPS_PREPROCESSED), name + ".npy haven't any corresponding midi file."
-            if 'MAPS_MUS-' == name[:9]:
+        if filename.endswith('.npy') and (USE_ENSTDk or 'ENSTDk' not in filename):
+            name = filename[:-4]
+            assert name + ".mid" in os.listdir(PATH_MAPS_PREPROCESSED),\
+                name + ".npy haven't any corresponding midi file."
+            if name.startswith('MAPS_MUS-'):
                 TEST_FILENAMES.append(name)
             else:
                 TRAIN_FILENAMES.append(name)
