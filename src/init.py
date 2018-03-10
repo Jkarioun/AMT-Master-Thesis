@@ -22,20 +22,15 @@ def init():
 def init_path_lists():
     """ Initialises the training and testing path list. """
 
-    def append_to(a_list, zipfile_name, path):
-        if path.endswith(".mid"):
-            a_list.append([zipfile_name, path[:-4]])
-        elif path.endswith(".wav"):
-            assert path[:-4] == a_list[-1][1], "non-corresponding files"
+    for filename in os.listdir(PATH_MAPS_PREPROCESSED):
+        filename_split = filename.split('.')
+        name, extension = '.'.join(filename_split[:-1]), filename_split[-1]
+        if extension == 'npy':
+            if 'MUS' in filename:
+                TEST_FILENAMES.append(name)
+            else:
+                TRAIN_FILENAMES.append(name)
 
-    for zipfile_name in [f for f in os.listdir(PATH_MAPS) if f.endswith('.zip')]:
-        with ZipFile(PATH_MAPS + zipfile_name) as zipfile:
-            for path in zipfile.namelist():
-                if len(path.split("/")) > 1 and (USE_ENSTDk or not path[:3] == "ENS"):
-                    if path.split("/")[1] == 'MUS':
-                        append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
-                    else:
-                        append_to(TRAIN_PATHS, PATH_MAPS + zipfile_name, path)
 
 
 def create_folders():

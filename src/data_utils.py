@@ -144,35 +144,37 @@ def next_batch(seed, train=True):
            np.expand_dims(ground_truth_batch_onset, axis=0)
 
 
-def util_next_batch(train=True, music_pair=None):
+def util_next_batch(train=True, music_name=None):
     """ Creates a sub_batch from a single MAPS music.
 
     :param train: True if a training batch is required, False if a testing batch is required.
-    :param music_pair: The music from which to do the sub_batch
-                       (of the form (path_to_zip, path_from_zip_to_music_without_extension)).
+    :param music_name: The music from which to do the sub_batch
                        If set to None, the music is chosen at random.
     :return: the input (#frame,TOTAL_BIN,1), framewise activation output (#frame,PIANO_PITCHES)
             and onset activation output (#frame,PIANO_PITCHES)
     """
-    if music_pair is not None:
-        pair = music_pair
-    elif train:
-        pair = TRAIN_PATHS[np.random.randint(0, len(TRAIN_PATHS))]
-    else:
-        pair = TEST_PATHS[np.random.randint(0, len(TEST_PATHS))]
-    with ZipFile(pair[0]) as zipfile:
-        # input
-        print(pair[0] + "   " + pair[1])
-        data_batch, _ = wav_to_CQT(zipfile.open(pair[1] + ".wav"))
-        data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+    if music_name is None:
+        if train:
+            music_name = TRAIN_FILENAMES[np.random.randint(0, len(TRAIN_FILENAMES))]
+        else:
+            music_name = TEST_FILENAMES[np.random.randint(0, len(TEST_FILENAMES))]
 
-        # expected output
-        unpadded_tensor = midi_file_to_tensor(zipfile.open(pair[1] + ".mid"))
+    print(music_name)
+
+    # input
+    data_batch = np.load(PATH_MAPS_PREPROCESSED + music_name + '.npy')
+    data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+
+    # expected output
+    with open(PATH_MAPS_PREPROCESSED + music_name + '.mid', 'rb') as mid_file:
+        unpadded_tensor = midi_file_to_tensor(mid_file)
+        if unpadded_tensor.shape[1] > MAX_FRAME_PER_BATCH:
+            unpadded_tensor = unpadded_tensor[:, :MAX_FRAME_PER_BATCH]
         ground_truth_batch_frame = np.zeros((data_batch.shape[0], PIANO_PITCHES))
         ground_truth_batch_frame[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[0]
         ground_truth_batch_onset = np.zeros((data_batch.shape[0], PIANO_PITCHES))
         ground_truth_batch_onset[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[1]
-    return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
+        return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
 
 
 if __name__ == '__main__':

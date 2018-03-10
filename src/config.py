@@ -72,8 +72,8 @@ PATH_TENSORBOARD = PATH_OUTPUT + "tensorboard/"
 PATH_LOGS = PATH_OUTPUT + "logs/"
 PATH_CHECKPOINTS = PATH_OUTPUT + "ckpt/"
 PATH_CODE = PATH_OUTPUT + "code/"
-TRAIN_PATHS = []
-TEST_PATHS = []
+TRAIN_FILENAMES = []
+TEST_FILENAMES = []
 
 # strings
 DATA = 'data'
