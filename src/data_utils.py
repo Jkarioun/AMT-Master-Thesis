@@ -186,5 +186,5 @@ if __name__ == '__main__':
         midi_tensor = midi_file_to_tensor(
             zipfile.open("AkPnBcht/UCHO/I32-96/C0-5-9/MAPS_UCHO_C0-5-9_I32-96_S0_n13_AkPnBcht.mid"))
         show_images = True
-        do_image(((midi_tensor[0] > 0).astype(float) + (midi_tensor[1] > 0))/2, title="debug", folder=PATH_DEBUG)
+        do_image(((midi_tensor[0] > 0).astype(float) + (midi_tensor[1] > 0)) / 2, title="debug", folder=PATH_DEBUG)
     compare_midi(PATH_DEBUG + "bug.mid", PATH_DEBUG + "bug.mid", PATH_DEBUG + "test.PNG")

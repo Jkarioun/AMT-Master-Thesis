@@ -14,7 +14,7 @@ import logging
 import shutil
 import errno
 import time
-DISPLAY = False
+DISPLAY = True
 if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
