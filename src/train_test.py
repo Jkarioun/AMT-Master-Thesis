@@ -5,7 +5,7 @@ from utils import *
 from data_utils import next_batch
 
 
-def test(sess, model, placeholders, folder=PATH_VISUALISATION, rand_seed=10, create_images=True, onset=False,
+def test(sess, model, placeholders, folder=PATH_VISUALISATION, rand_seed=RAND_SEED, create_images=True, onset=False,
          log_message=""):
     """ Run a test of the model.
     Reports the results in the log file and creates some images to facilitate results analysis.
@@ -54,7 +54,7 @@ def test(sess, model, placeholders, folder=PATH_VISUALISATION, rand_seed=10, cre
                      cf_m_mod['FP'], cf_m_mod['FN'], cf_m_mod['TN'], loss_value))
 
 
-def train(model, placeholders, num_batches=100, rand_seed=0, onset=False):
+def train(model, placeholders, num_batches=100, rand_seed=RAND_SEED, onset=False):
     """ Trains the model for num_batches batches and saves it in a file.
     Launch some testing periodically to have intermediary results. Reports some results in the logs.
 
