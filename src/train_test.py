@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 from utils import *
 from data_utils import next_batch
@@ -45,8 +47,11 @@ def test(sess, model, placeholders, folder=PATH_VISUALISATION, rand_seed=10, cre
         do_image((compare_tresh + 1) / 2, "06_compare_tresh", folder)
 
     cf_m = testing_metrics(ground_truth_batch[0] == 1, prediction[0] > 0.5)
-    logging.info(log_message + "[rand_seed=%d][mode=testing][TP=%d][FP=%d][FN=%d][TN=%d][log_loss=%f]" % (
-        rand_seed, cf_m['TP'], cf_m['FP'], cf_m['FN'], cf_m['TN'], loss_value))
+    cf_m_mod = testing_metrics(ground_truth_batch[0] == 1, prediction[0] > 0.5, ground_weights > 0)
+    logging.info(log_message + "[rand_seed=%d][mode=testing][count=partial][TP=%d][FP=%d][FN=%d][TN=%d]"
+                               "[TP_mod=%d][FP_mod=%d][FN_mod=%d][TN_mod=%d][log_loss=%f]" % (
+                     rand_seed, cf_m['TP'], cf_m['FP'], cf_m['FN'], cf_m['TN'], cf_m_mod['TP'],
+                     cf_m_mod['FP'], cf_m_mod['FN'], cf_m_mod['TN'], loss_value))
 
 
 def train(model, placeholders, num_batches=100, rand_seed=0, onset=False):

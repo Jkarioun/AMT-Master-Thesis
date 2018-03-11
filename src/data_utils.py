@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 from init import init
 from utils import do_image
@@ -163,7 +165,7 @@ def util_next_batch(train=True, music_name=None):
 
     # input
     data_batch = np.load(PATH_MAPS_PREPROCESSED + music_name + '.npy')
-    data_batch = np.reshape(data_batch, [-1, TOTAL_BIN, 1])
+    data_batch = np.expand_dims(data_batch[:, :TOTAL_BIN], axis=2)
 
     # expected output
     with open(PATH_MAPS_PREPROCESSED + music_name + '.mid', 'rb') as mid_file:
@@ -174,7 +176,7 @@ def util_next_batch(train=True, music_name=None):
         ground_truth_batch_frame[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[0]
         ground_truth_batch_onset = np.zeros((data_batch.shape[0], PIANO_PITCHES))
         ground_truth_batch_onset[:unpadded_tensor.shape[1], :unpadded_tensor.shape[2]] = unpadded_tensor[1]
-        return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
+    return data_batch, ground_truth_batch_frame, ground_truth_batch_onset
 
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 
 if DISPLAY:
@@ -62,7 +64,8 @@ if DISPLAY:
                 line_num += 1
 
         mv_length = 300
-        train_ll_kelz = [sum(train_log_loss[i:i + mv_length]) / mv_length for i in range(len(train_log_loss) - mv_length)]
+        train_ll_kelz = [sum(train_log_loss[i:i + mv_length]) / mv_length for i in
+                         range(len(train_log_loss) - mv_length)]
 
         plt.plot(range(len(train_log_loss)), train_log_loss, '-')
 
@@ -83,14 +86,14 @@ if DISPLAY:
         plt.show()
 
         # accuracy
-#        accuracy_mod = accuracy_mod[1:]
-#        accuracy_kelz = accuracy_kelz[1:]
-#        plt.plot(range(len(accuracy_kelz)), accuracy_kelz, '--',
-#                 range(len(accuracy_mod)), accuracy_mod, '-')
-#
-#        plt.legend(['kelz', 'our model'], loc='upper right')
-#        plt.ylabel('Accuracy')
-#        plt.xlabel('Steps (500 training iterations per step)')
-#        plt.title('Test accuracy evolution')
+        #        accuracy_mod = accuracy_mod[1:]
+        #        accuracy_kelz = accuracy_kelz[1:]
+        #        plt.plot(range(len(accuracy_kelz)), accuracy_kelz, '--',
+        #                 range(len(accuracy_mod)), accuracy_mod, '-')
+        #
+        #        plt.legend(['kelz', 'our model'], loc='upper right')
+        #        plt.ylabel('Accuracy')
+        #        plt.xlabel('Steps (500 training iterations per step)')
+        #        plt.title('Test accuracy evolution')
 
         plt.show()
