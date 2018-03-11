@@ -16,13 +16,8 @@ sklearn
 TODO:
 extend temporal base (as in wavenet)
 check if open files are closed
-migrate to github public
-extend log visualisations to compare multiple models
-batch_norm: investigate and fix
 TP,NP... in TF instead of numpy
-code review batch_norm and dropout
 start paper for ISMIR conference
-code review batch_norm et dropout
 
 
 

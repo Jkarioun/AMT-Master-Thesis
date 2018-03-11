@@ -149,7 +149,6 @@ def get_model(hparams=DEFAULT_HPARAMS):
         model[TRAIN] = slim.learning.create_train_op(
             model[LOSS],
             optimizer,
-            clip_gradient_norm=hparams.clip_norm,
             summarize_gradients=True)
 
     return placeholders, model
