@@ -14,4 +14,5 @@ def copy(src, dest):
 
 
 for i in range(10):
-    copy("../src", "../src" + str(i))
+    copy("../src", "../srcc" + str(i*8))
+    #with open("../srcc" + str(i*8) + "/config.py",'a')

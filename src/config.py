@@ -27,7 +27,7 @@ if DISPLAY:
 # running parameters #
 ######################
 
-CONFIG_NAME = 'frame_weighted_hybrid_0002'
+CONFIG_NAME = 'kelz_batch_norm_test'
 TRAINING = True
 TESTING = False
 TRAIN_FROM_LAST = False
@@ -44,7 +44,7 @@ MAX_FRAME_PER_BATCH = 2000
 ####################
 
 ONSET = False
-KELZ_MODEL = False
+KELZ_MODEL = True
 FIRST_LAYER_HARMONIC = False
 HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
@@ -57,7 +57,7 @@ DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
 
 PIANO_MIN_PITCH = 21
 PIANO_MAX_PITCH = 108
-ANALYSIS_UPPER_PITCH = 10  # supplementary pitches for harmonics
+ANALYSIS_UPPER_PITCH = 0  # supplementary pitches for harmonics
 PIANO_PITCHES = PIANO_MAX_PITCH - PIANO_MIN_PITCH + 1
 MIDI_PITCHES = 128
 NUM_PITCHES = PIANO_PITCHES + ANALYSIS_UPPER_PITCH
@@ -93,6 +93,7 @@ MAX_NOTE_LENGTH = FRAME_PER_SEC * 5
 PATH_OUTPUT = "../outputs/" + CONFIG_NAME + "/"
 PATH_DEBUG = "../data/debug/"
 PATH_MAPS = "../data/MAPS/"
+PATH_SRC = '../src'
 PATH_MAPS_PREPROCESSED = "../data/MAPS_PREPROCESSED/"
 PATH_VISUALISATION = PATH_OUTPUT + "visualisation/"
 PATH_TENSORBOARD = PATH_OUTPUT + "tensorboard/"

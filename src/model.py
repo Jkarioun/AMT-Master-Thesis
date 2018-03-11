@@ -146,10 +146,7 @@ def get_model(hparams=DEFAULT_HPARAMS):
 
         # optimizer
         optimizer = tf.train.AdamOptimizer(learning_rate=hparams.learning_rate)
-        model[TRAIN] = slim.learning.create_train_op(
-            model[LOSS],
-            optimizer,
-            summarize_gradients=True)
+        model[TRAIN] = slim.learning.create_train_op(model[LOSS], optimizer)
 
     return placeholders, model
 

@@ -55,9 +55,9 @@ def create_folders():
         os.makedirs(PATH_LOGS)
         os.makedirs(PATH_TENSORBOARD)
         os.makedirs(PATH_CHECKPOINTS)
-        copy(".", PATH_CODE)
+        copy(PATH_SRC, PATH_CODE)
     else:
-        copy(".", PATH_CODE + str(int(time.time())) + "/")
+        copy(PATH_SRC, PATH_CODE + str(int(time.time())) + "/")
 
 
 if __name__ == '__main__':
