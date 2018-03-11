@@ -64,7 +64,7 @@ if DISPLAY:
                 line_num += 1
 
         mv_length = 300
-        train_ll_kelz = [sum(train_log_loss[i:i + mv_length]) / mv_length for i in
+        train_log_loss = [sum(train_log_loss[i:i + mv_length]) / mv_length for i in
                          range(len(train_log_loss) - mv_length)]
 
         plt.plot(range(len(train_log_loss)), train_log_loss, '-')
