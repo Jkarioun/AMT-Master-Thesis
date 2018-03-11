@@ -23,7 +23,6 @@ TP,NP... in TF instead of numpy
 code review batch_norm and dropout
 start paper for ISMIR conference
 code review batch_norm et dropout
-sharelatex => paper (template, titre / sections)
 
 
 
