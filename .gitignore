@@ -1,2 +1,5 @@
 *.xml
-data/MAPS/*
+data/MAPS*
+.idea/*
+*__pycache__*
+tmp/*
