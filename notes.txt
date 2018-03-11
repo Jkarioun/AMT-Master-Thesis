@@ -1,5 +1,7 @@
+Shapes of the input and output:
 Input tensor of the form (Batch x Time x Pitch x Filters)
 Output tensor of the form (Time x Pitch)
+
 
 Dependencies:
 tensorflow
@@ -11,10 +13,19 @@ matplotlib
 sklearn
 
 
-todo :
-étendre le base temporelle comme wavnet
+TODO:
+extend temporal base (as in wavenet)
+check if open files are closed
+migrate to github public
+extend log visualisations to compare multiple models
+batch_norm: investigate and fix
+TP,NP... in TF instead of numpy
+code review batch_norm and dropout
+start paper for ISMIR conference
+code review batch_norm et dropout
+sharelatex => paper (template, titre / sections)
 
-fermer les files ouvertes (?)
+
 
 Partial training :
     optimizer = tf.train.AdagradOptimzer(0.01)
@@ -24,3 +35,4 @@ Partial training :
     second_train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
                                           "scope/prefix/for/second/vars")
     second_train_op = optimizer.minimize(cost, var_list=second_train_vars)
+
