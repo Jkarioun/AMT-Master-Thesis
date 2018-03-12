@@ -17,7 +17,7 @@ import shutil
 import errno
 import time
 
-DISPLAY = True
+DISPLAY = False
 if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
@@ -31,12 +31,13 @@ CONFIG_NAME = 'kelz_batch_norm_test'
 TRAINING = True
 TESTING = False
 TRAIN_FROM_LAST = False
-show_images = True
+show_images = False
 RANDOM_DEBUG = 0
 RAND_SEED = 10
 NUM_BATCHES = 50000
 MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
+CREATE_OUTPUT_FOLDERS = True
 
 #
 ####################
@@ -44,11 +45,13 @@ MAX_FRAME_PER_BATCH = 2000
 ####################
 
 ONSET = False
-KELZ_MODEL = True
+KELZ_MODEL = False
+KELZ_KERNEL = [3, 3]
 FIRST_LAYER_HARMONIC = False
 HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
-DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
+LEARNING_RATE = 0.0002
+DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=LEARNING_RATE)
 
 #
 ##############################

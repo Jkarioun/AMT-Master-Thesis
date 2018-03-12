@@ -1,7 +1,7 @@
 # File to launch the program on the ingi server.
 
 
-Executable   = ../src$(Process)/main.py
+Executable   = ../srcc$(process)/main.py
 
 Log          = ingi_logs.log
 
@@ -9,4 +9,4 @@ Output       = ingi_logs.outputfile.$(Process)
 
 requirements = Arch == "X86_64"
 
-Queue 10
+Queue 73

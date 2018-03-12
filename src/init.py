@@ -15,7 +15,8 @@ def init():
     tf.set_random_seed(42)
 
     init_path_lists()
-    create_folders()
+    if CREATE_OUTPUT_FOLDERS:
+        create_folders()
     # Logger config
     logging.basicConfig(filename=PATH_LOGS + CONFIG_NAME + '.log', level=logging.DEBUG,
                         format='%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s')

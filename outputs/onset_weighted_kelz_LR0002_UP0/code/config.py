@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 import librosa
 import tensorflow as tf
 import numpy as np
@@ -20,13 +22,12 @@ if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
 
-
-PATH_SRC = "../src8"
-
+#
 ######################
 # running parameters #
 ######################
 
+PATH_SRC = "../src64"  # useful for condor submission
 CONFIG_NAME = 'onset_weighted_kelz_LR0002_UP0'
 TRAINING = True
 TESTING = False
@@ -37,7 +38,7 @@ NUM_BATCHES = 50000
 MIN_FRAME_PER_BATCH = 1000
 MAX_FRAME_PER_BATCH = 2000
 
-
+#
 ####################
 # model parameters #
 ####################
@@ -49,7 +50,7 @@ HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
 CONV_SIZE = len(HARMONIC_RELATIVES)
 DEFAULT_HPARAMS = tf.contrib.training.HParams(learning_rate=0.0002)
 
-
+#
 ##############################
 # pitch dimension parameters #
 ##############################
@@ -64,10 +65,10 @@ BINS_PER_PITCH = 4
 BINS_PER_OCTAVE = BINS_PER_PITCH * 12
 TOTAL_BIN = NUM_PITCHES * BINS_PER_PITCH
 
-
-#######################
-# data CQT parameters #
-#######################
+#
+############
+# data CQT #
+############
 
 MIN_FREQ = librosa.note_to_hz('A0') * (2 ** (-1 / BINS_PER_OCTAVE))
 SAMPLE_RESOLUTION = 16000
@@ -75,7 +76,7 @@ CQT_WINDOW = 'hann'
 CQT_HOP_LENGTH = 512
 FRAME_PER_SEC = SAMPLE_RESOLUTION / CQT_HOP_LENGTH
 
-
+#
 #########################
 # data other parameters #
 #########################
@@ -84,7 +85,7 @@ USE_ENSTDk = False
 MIN_NOTE_LENGTH_IF_SUSTAIN = FRAME_PER_SEC * 2
 MAX_NOTE_LENGTH = FRAME_PER_SEC * 5
 
-
+#
 #########
 # Paths #
 #########
@@ -92,15 +93,16 @@ MAX_NOTE_LENGTH = FRAME_PER_SEC * 5
 PATH_OUTPUT = "../outputs/" + CONFIG_NAME + "/"
 PATH_DEBUG = "../data/debug/"
 PATH_MAPS = "../data/MAPS/"
+PATH_MAPS_PREPROCESSED = "../data/MAPS_PREPROCESSED/"
 PATH_VISUALISATION = PATH_OUTPUT + "visualisation/"
 PATH_TENSORBOARD = PATH_OUTPUT + "tensorboard/"
 PATH_LOGS = PATH_OUTPUT + "logs/"
 PATH_CHECKPOINTS = PATH_OUTPUT + "ckpt/"
 PATH_CODE = PATH_OUTPUT + "code/"
-TRAIN_PATHS = []
-TEST_PATHS = []
+TRAIN_FILENAMES = []
+TEST_FILENAMES = []
 
-
+#
 ###########
 # strings #
 ###########

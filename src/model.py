@@ -52,13 +52,13 @@ def conv_net_kelz(inputs):
             activation_fn=tf.nn.relu,
             weights_initializer=tf.contrib.layers.variance_scaling_initializer(
                 factor=2.0, mode='FAN_AVG', uniform=True)), tf.name_scope("Kelz"):
-        net = slim.conv2d(inputs, 32, [3, 3], scope='conv1')
+        net = slim.conv2d(inputs, 32, KELZ_KERNEL, scope='conv1')
         net = slim.conv2d(
-            net, 32, [3, 3], scope='conv2', normalizer_fn=slim.batch_norm)
+            net, 32, KELZ_KERNEL, scope='conv2', normalizer_fn=slim.batch_norm)
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool2')
         net = slim.dropout(net, 0.25, scope='dropout2')
 
-        net = slim.conv2d(net, 64, [3, 3], scope='conv3')
+        net = slim.conv2d(net, 64, KELZ_KERNEL, scope='conv3')
         net = slim.max_pool2d(net, [1, 2], stride=[1, 2], scope='pool3')
         net = slim.dropout(net, 0.25, scope='dropout3')
 

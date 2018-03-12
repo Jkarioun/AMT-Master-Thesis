@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 from config import *
 
 
@@ -22,20 +24,13 @@ def init():
 def init_path_lists():
     """ Initialises the training and testing path list. """
 
-    def append_to(a_list, zipfile_name, path):
-        if path.endswith(".mid"):
-            a_list.append([zipfile_name, path[:-4]])
-        elif path.endswith(".wav"):
-            assert path[:-4] == a_list[-1][1], "non-corresponding files"
-
-    for zipfile_name in [f for f in os.listdir(PATH_MAPS) if f.endswith('.zip')]:
-        with ZipFile(PATH_MAPS + zipfile_name) as zipfile:
-            for path in zipfile.namelist():
-                if len(path.split("/")) > 1 and (USE_ENSTDk or not path[:3] == "ENS"):
-                    if path.split("/")[1] == 'MUS':
-                        append_to(TEST_PATHS, PATH_MAPS + zipfile_name, path)
-                    else:
-                        append_to(TRAIN_PATHS, PATH_MAPS + zipfile_name, path)
+    for filename in os.listdir(PATH_MAPS_PREPROCESSED):
+        if filename.endswith('.npy') and (USE_ENSTDk or 'ENSTDk' not in filename):
+            name = filename[:-4]
+            if name.startswith('MAPS_MUS-'):
+                TEST_FILENAMES.append(name)
+            else:
+                TRAIN_FILENAMES.append(name)
 
 
 def create_folders():
@@ -51,9 +46,9 @@ def create_folders():
             else:
                 print('Directory not copied. Error: %s' % e)
 
-    assert (not TRAIN_FROM_LAST or os.path.exists(PATH_OUTPUT)),\
+    assert (not TRAIN_FROM_LAST or os.path.exists(PATH_OUTPUT)), \
         "Impossible to train from last version: no last version available for this config_name"
-    assert (TRAIN_FROM_LAST or not os.path.exists(PATH_OUTPUT)),\
+    assert (TRAIN_FROM_LAST or not os.path.exists(PATH_OUTPUT)), \
         "config_name already used for another model. Please change the name or suppress the output folder."
     if not TRAIN_FROM_LAST:
         os.makedirs(PATH_VISUALISATION)
@@ -63,6 +58,7 @@ def create_folders():
         copy(PATH_SRC, PATH_CODE)
     else:
         copy(PATH_SRC, PATH_CODE + str(int(time.time())) + "/")
+
 
 if __name__ == '__main__':
     init()
