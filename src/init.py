@@ -50,7 +50,7 @@ def create_folders():
     assert (not TRAIN_FROM_LAST or os.path.exists(PATH_OUTPUT)), \
         "Impossible to train from last version: no last version available for this config_name"
     assert (TRAIN_FROM_LAST or not os.path.exists(PATH_OUTPUT)), \
-        "config_name already used for another model. Please change the name or suppress the output folder."
+        "config_name \'%s\' already used for another model." % CONFIG_NAME
     if not TRAIN_FROM_LAST:
         os.makedirs(PATH_VISUALISATION)
         os.makedirs(PATH_LOGS)
