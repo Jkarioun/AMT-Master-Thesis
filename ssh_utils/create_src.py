@@ -61,11 +61,11 @@ for i in range(73):
         dico['CONFIG_NAME = '] = '\'onset_weighted_hybrid_LR0002_UP0\''
         dico['ONSET = '] = 'True'
     elif i == 64:
-        dico['CONFIG_NAME = '] = '\'frame_weighted_kelz_LR0002_UP0\''
+        dico['CONFIG_NAME = '] = '\'onset_weighted_kelz_LR0002_UP0\''
         dico['ONSET = '] = 'True'
         dico['KELZ_MODEL = '] = 'True'
     elif i == 72:
-        dico['CONFIG_NAME = '] = '\'frame_weighted_harm_LR0002_UP0\''
+        dico['CONFIG_NAME = '] = '\'onset_weighted_harm_LR0002_UP0\''
         dico['ONSET = '] = 'True'
         dico['FIRST_LAYER_HARMONIC = '] = 'True'
     else:

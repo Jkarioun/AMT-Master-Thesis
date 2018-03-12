@@ -104,7 +104,7 @@ if DISPLAY:
         plt.show()
 
         for model, index in zip(models, range(len(models))):
-            plt.plot(range(len(test_log_loss_same[index])), test_log_loss_same[index], '-')
+            plt.plot(range(len(test_log_loss_changing[index])), test_log_loss_changing[index], '-')
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss')
