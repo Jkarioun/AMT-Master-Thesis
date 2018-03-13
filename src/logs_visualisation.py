@@ -14,8 +14,9 @@ if DISPLAY:
 
         # Models to compare
         models = [
-            'frame_weighted_hybrid_0002',
-            'kelz_batch_norm_test'
+            'frame_weighted_hybrid_LR0002_UP0',
+            'frame_weighted_harm_LR0002_UP0',
+            'frame_weighted_kelz_LR0002_UP0',
         ]
 
         attributes = [
@@ -77,7 +78,7 @@ if DISPLAY:
 
                     # train
                     if mode == 'train':
-                        train_log_loss[index].append(math.log(attr(line, 'log_loss', float)))
+                        train_log_loss[index].append(attr(line, 'log_loss', float))
                     # test
                     # same test data
                     elif rand_seed == RAND_SEED:

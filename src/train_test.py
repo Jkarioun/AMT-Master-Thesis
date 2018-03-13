@@ -92,9 +92,9 @@ def train(model, placeholders, num_batches=100, rand_seed=RAND_SEED, onset=False
                 saver.save(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
             if (i + 1) % 50 == 0:
                 # test
-                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(rand_seed) + "_" + str(i) + "/",
+                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(RAND_SEED) + "_" + str(i) + "/",
                      onset=ONSET, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i)
-                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(rand_seed) + "_" + str(i) + "/",
+                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(i) + "_" + str(i) + "/",
                      onset=ONSET, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i, rand_seed=i)
 
         # Save
