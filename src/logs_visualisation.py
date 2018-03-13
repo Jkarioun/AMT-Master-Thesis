@@ -15,24 +15,33 @@ if DISPLAY:
         # Models to compare
         models = [
             'frame_weighted_hybrid_0002',
-            'frame_weighted_hybrid37_LR0002_UP0'
+            'kelz_batch_norm_test'
+        ]
+
+        attributes = [
+            ('log_loss', float),
+            ('accuracy', float),
+            ('TP', float),
+            ('TN', float),
+            ('FP', float),
+            ('FN', float),
+            ('TP_mod', float),
+            ('TN_mod', float),
+            ('FP_mod', float),
+            ('FN_mod', float),
+            ('iteration', int),
+            ('rand_seed', int),
+            ('mode', str),
         ]
 
         train_log_loss = [[] for _ in range(len(models))]
-        test_log_loss_same = [[] for _ in range(len(models))]
-        test_log_loss_changing = [[] for _ in range(len(models))]
+
+        test_same = [{name: [] for name, _ in attributes} for _ in range(len(models))]
+        test_changing = [{name: [] for name, _ in attributes} for _ in range(len(models))]
 
         patterns = {
-            'iteration': re.compile('\[iteration=(\d+)\]'),
-            'TP': re.compile('\[TP=(\d+)\]'),
-            'TN': re.compile('\[TN=(\d+)\]'),
-            'FP': re.compile('\[FP=(\d+)\]'),
-            'FN': re.compile('\[FN=(\d+)\]'),
-            'log_loss': re.compile('\[log_loss=(.*)\]'),
-            'rand_seed': re.compile('\[rand_seed=(\d+)\]'),
-            'accuracy': re.compile('\[accuracy=(.*)\]'),
-            'measure': re.compile('\[measure=(\w+)\]'),
-            'mode': re.compile('\[mode=(\w+)\]')
+            name: re.compile('\[%s=([\w\.]+)\]' % name)
+            for (name, _) in attributes
         }
 
 
@@ -63,26 +72,27 @@ if DISPLAY:
                         continue
 
                     # get attr values
-                    log_loss = attr(line, 'log_loss', float)
                     mode = attr(line, 'mode', str)
                     rand_seed = attr(line, 'rand_seed', int)
 
                     # train
                     if mode == 'train':
-                        train_log_loss[index].append(math.log(log_loss))
+                        train_log_loss[index].append(math.log(attr(line, 'log_loss', float)))
                     # test
                     # same test data
                     elif rand_seed == RAND_SEED:
-                        test_log_loss_same[index].append(math.log(log_loss))
+                        for name, type in attributes:
+                            test_same[index][name].append(attr(line, name, type))
                     # random test data
                     else:
-                        test_log_loss_changing[index].append(math.log(log_loss))
+                        for name, type in attributes:
+                            test_changing[index][name].append(attr(line, name, type))
 
                     line_num += 1
 
         for model, index in zip(models, range(len(models))):
             model_mva = [sum(train_log_loss[index][i:i + mva_length]) / mva_length for i in
-                              range(len(train_log_loss[index]) - mva_length)]
+                         range(len(train_log_loss[index]) - mva_length)]
 
             plt.plot(range(len(model_mva)), model_mva, '-')
 
@@ -94,7 +104,7 @@ if DISPLAY:
         plt.show()
 
         for model, index in zip(models, range(len(models))):
-            plt.plot(range(len(test_log_loss_same[index])), test_log_loss_same[index], '-')
+            plt.plot(range(len(test_same[index]['log_loss'])), test_same[index]['log_loss'], '-')
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss')
@@ -104,7 +114,7 @@ if DISPLAY:
         plt.show()
 
         for model, index in zip(models, range(len(models))):
-            plt.plot(range(len(test_log_loss_changing[index])), test_log_loss_changing[index], '-')
+            plt.plot(range(len(test_changing[index]['log_loss'])), test_changing[index]['log_loss'], '-')
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss')

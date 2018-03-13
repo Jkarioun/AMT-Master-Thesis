@@ -17,7 +17,7 @@ import shutil
 import errno
 import time
 
-DISPLAY = False
+DISPLAY = True
 if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
@@ -31,7 +31,7 @@ CONFIG_NAME = 'kelz_batch_norm_test'
 TRAINING = True
 TESTING = False
 TRAIN_FROM_LAST = False
-show_images = False
+show_images = True
 RANDOM_DEBUG = 0
 RAND_SEED = 10
 NUM_BATCHES = 50000
