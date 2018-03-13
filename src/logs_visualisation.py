@@ -98,6 +98,7 @@ if DISPLAY:
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss (moving average over 300 steps)')
+        plt.yscale('log')
         plt.xlabel('Steps (5 iterations per steps)')
         plt.title('Train loss evolution over training')
 
@@ -108,6 +109,7 @@ if DISPLAY:
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss')
+        plt.yscale('log')
         plt.xlabel('Steps (50 training iterations per step)')
         plt.title('Test loss evolution over training (same test data)')
 
@@ -118,6 +120,7 @@ if DISPLAY:
 
         plt.legend(models, loc='upper right')
         plt.ylabel('Log loss')
+        plt.yscale('log')
         plt.xlabel('Steps (50 training iterations per step)')
         plt.title('Test loss evolution over training (random test data)')
 
