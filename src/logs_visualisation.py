@@ -10,13 +10,13 @@ if DISPLAY:
     if __name__ == '__main__':
 
         # Test moving average length
-        mva_length = 300
+        mva_length = 500
 
         # Models to compare
         models = [
-            'frame_weighted_hybrid_LR0002_UP0',
-            'frame_weighted_harm_LR0002_UP0',
-            'frame_weighted_kelz_LR0002_UP0',
+            'onset_weighted_hybrid_LR0002_UP0',
+            'onset_weighted_harm_LR0002_UP0',
+            'onset_weighted_kelz_LR0002_UP0',
         ]
 
         attributes = [
@@ -79,11 +79,13 @@ if DISPLAY:
                     # train
                     if mode == 'train':
                         train_log_loss[index].append(attr(line, 'log_loss', float))
+
                     # test
                     # same test data
                     elif rand_seed == RAND_SEED:
                         for name, type in attributes:
                             test_same[index][name].append(attr(line, name, type))
+
                     # random test data
                     else:
                         for name, type in attributes:
@@ -128,28 +130,47 @@ if DISPLAY:
         plt.show()
 
         # F-measure
-        mva_length = 10
-        for model, index in zip(models, range(len(models))):
-            TPs = test_same[index]['TP']
-            FPs = test_same[index]['FP']
-            TNs = test_same[index]['TN']
-            FNs = test_same[index]['FN']
+        mva_length = 20
+        precision_mva = []
+        recall_mva = []
+        F_measure_mva = []
 
-            precision_mva = [sum(TPs[i:i + mva_length]) / (sum(TPs[i:i + mva_length]) + sum(FPs[i:i + mva_length])
-                                                           + 0.0000001)
-                          for i in range(len(TPs) - mva_length)]
-            recall_mva = [sum(TPs[i:i + mva_length]) / (sum(TPs[i:i + mva_length]) + sum(FNs[i:i + mva_length])
-                                                        + 0.0000001)
-                          for i in range(len(TPs) - mva_length)]
-            F_measure_mva = [2 * precision_mva[i] * recall_mva[i] / (precision_mva[i] + recall_mva[i]
-                                                                     + 0.0000001)
-                          for i in range(len(precision_mva))]
+        for mod in ['', '_mod']:
+            for index in range(len(models)):
+                TPs = test_same[index]['TP'+mod]
+                FPs = test_same[index]['FP'+mod]
+                TNs = test_same[index]['TN'+mod]
+                FNs = test_same[index]['FN'+mod]
 
-            plt.plot(range(len(F_measure_mva)), F_measure_mva, '-')
+                sum_TP = [sum(TPs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
+                sum_FP = [sum(FPs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
+                sum_FN = [sum(FNs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
+                precision_mva.append([sum_TP[i] / (sum_TP[i] + sum_FP[i]) if sum_TP[i] > 0 else 0 for i in range(len(sum_TP))])
+                recall_mva.append([sum_TP[i] / (sum_TP[i] + sum_FN[i]) if sum_TP[i] > 0 else 0 for i in range(len(sum_TP))])
+                F_measure_mva.append([2 * precision_mva[-1][i] * recall_mva[-1][i] /
+                                      (precision_mva[-1][i] + recall_mva[-1][i]) if precision_mva[-1][i] > 0 else 0
+                                      for i in range(len(precision_mva[-1]))])
 
-        plt.legend(models, loc='lower right')
-        plt.ylabel('F-measure')
-        plt.xlabel('Steps (50 training iterations per step)')
-        plt.title('F-measure evolution over training (same test data)')
+            for index in range(len(models)):
+                plt.plot(range(len(F_measure_mva[index])), F_measure_mva[index], '-')
+            plt.legend(models, loc='lower right')
+            plt.ylabel('F-measure'+mod)
+            plt.xlabel('Steps (50 training iterations per step)')
+            plt.title('F-measure evolution over training (same test data)')
+            plt.show()
 
-        plt.show()
+            for index in range(len(models)):
+                plt.plot(range(len(precision_mva[index])), precision_mva[index], '-')
+            plt.legend(models, loc='lower right')
+            plt.ylabel('Precision'+mod)
+            plt.xlabel('Steps (50 training iterations per step)')
+            plt.title('Precision evolution over training (same test data)')
+            plt.show()
+
+            for index in range(len(models)):
+                plt.plot(range(len(recall_mva[index])), recall_mva[index], '-')
+            plt.legend(models, loc='lower right')
+            plt.ylabel('Recall'+mod)
+            plt.xlabel('Steps (50 training iterations per step)')
+            plt.title('Recall evolution over training (same test data)')
+            plt.show()
