@@ -92,11 +92,34 @@ def train(model, placeholders, num_batches=100, rand_seed=RAND_SEED, onset=False
                 saver.save(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
             if (i + 1) % 50 == 0:
                 # test
-                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(RAND_SEED) + "_" + str(i) + "/",
-                     onset=ONSET, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i)
+                test(sess, model, placeholders, folder=PATH_VISUALISATION + str(rand_seed) + "_" + str(i) + "/",
+                     onset=onset, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i)
                 test(sess, model, placeholders, folder=PATH_VISUALISATION + str(i) + "_" + str(i) + "/",
-                     onset=ONSET, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i, rand_seed=i)
+                     onset=onset, create_images=((i + 1) % 5000 == 0), log_message="[iteration=%d]" % i, rand_seed=i)
 
         # Save
         saver.save(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
         writer.close()
+
+
+def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED):
+    saver = tf.train.Saver()
+    predictions = np.array([])
+    truths = np.array([])
+    with tf.Session() as sess:
+        saver.restore(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
+        for i in range(num_test):
+            data_batch, ground_truth_frame, ground_truth_onset = next_batch(rand_seed+i, train=False)
+            ground_truth = ((ground_truth_onset if onset else ground_truth_frame) > 0).astype(int)
+
+            ground_weights = onsets_and_frames_to_weights(ground_truth_onset, ground_truth_frame, onset=onset)
+
+            prediction, loss_value = sess.run([model[PRED], model[LOSS]],
+                                              feed_dict={placeholders[DATA]: data_batch,
+                                                         placeholders[GROUND_TRUTH]: ground_truth,
+                                                         placeholders[GROUND_WEIGHTS]: ground_weights,
+                                                         placeholders[IS_TRAINING]: False})
+
+            predictions = np.append(predictions, np.reshape(prediction, -1))
+            truths = np.append(truths, np.reshape(ground_truth, -1))
+    return AUC(predictions, truths)

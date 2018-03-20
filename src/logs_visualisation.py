@@ -2,175 +2,157 @@
 
 from config import *
 
-if DISPLAY:
+if __name__ == '__main__':
     import math
     import matplotlib.pyplot as plt
     import re
+    from utils import moving_average
 
-    if __name__ == '__main__':
+    # Test moving average length
+    MVA_LENGTH_TRAIN = 500
+    MVA_LENGTH_TEST_SAME = 30
+    MVA_LENGTH_TEST_CHANGING = 30
 
-        # Test moving average length
-        mva_length = 500
+    # Models to compare
+    models = [out for out in os.listdir('../outputs') if out.startswith('onset')]
 
-        # Models to compare
-        models = [
-            'onset_weighted_hybrid_LR0002_UP0',
-            'onset_weighted_harm_LR0002_UP0',
-            'onset_weighted_kelz_LR0002_UP0',
-        ]
+    attributes = [
+        ('log_loss', float),
+        ('accuracy', float),
+        ('TP', float),
+        ('TN', float),
+        ('FP', float),
+        ('FN', float),
+        ('TP_mod', float),
+        ('TN_mod', float),
+        ('FP_mod', float),
+        ('FN_mod', float),
+        ('iteration', int),
+        ('rand_seed', int),
+        ('mode', str),
+    ]
 
-        attributes = [
-            ('log_loss', float),
-            ('accuracy', float),
-            ('TP', float),
-            ('TN', float),
-            ('FP', float),
-            ('FN', float),
-            ('TP_mod', float),
-            ('TN_mod', float),
-            ('FP_mod', float),
-            ('FN_mod', float),
-            ('iteration', int),
-            ('rand_seed', int),
-            ('mode', str),
-        ]
+    train_log_loss_iteration = [[] for _ in range(len(models))]
+    train_log_loss = [[] for _ in range(len(models))]
 
-        train_log_loss = [[] for _ in range(len(models))]
+    test_same_iteration = [[] for _ in range(len(models))]
+    test_same = [{name: [] for name, _ in attributes} for _ in range(len(models))]
+    test_changing_iteration = [[] for _ in range(len(models))]
+    test_changing = [{name: [] for name, _ in attributes} for _ in range(len(models))]
 
-        test_same = [{name: [] for name, _ in attributes} for _ in range(len(models))]
-        test_changing = [{name: [] for name, _ in attributes} for _ in range(len(models))]
+    patterns = {name: re.compile('\[%s=([\w\.]+)\]' % name) for (name, _) in attributes}
 
-        patterns = {
-            name: re.compile('\[%s=([\w\.]+)\]' % name)
-            for (name, _) in attributes
-        }
+    def attr(line, key, cast_funct):
+        """ Helper to get an attribute from a line of log.
 
+        :param line: line of log to be treated.
+        :param key: name of the attribute to lookup.
+        :param cast_funct: function to use to get the appropriate type.
+        :return: the value of the attribute or None if the attribute is not present.
+        """
+        res = re.search(patterns[key], line)
+        if res is not None:
+            return cast_funct(res.groups(1)[0])
+        return None
 
-        def attr(line, key, cast_funct):
-            """ Herlper to get an attribute from a line of log
-                :param line: line of log to be treated
-                :param key: name of the attribute to lookup
-                :param cast_funct: function to use to get the appropriate type"""
-            res = re.search(patterns[key], line)
-            if res is not None:
-                return cast_funct(res.groups(1)[0])
-            return None
+    # Get logs in usable structure
+    for model, idx in zip(models, range(len(models))):
+        with open('../outputs/{0}/logs/{0}.log'.format(model)) as log_file:
+            for line in log_file:
+                iteration = attr(line, 'iteration', int)
 
+                # get attr values
+                mode = attr(line, 'mode', str)
+                rand_seed = attr(line, 'rand_seed', int)
 
-        for model, index in zip(models, range(len(models))):
-            with open('../outputs/{0}/logs/{0}.log'.format(model)) as log_file:
-                iteration = 0
+                # skip invalid lines
+                if mode is None:
+                    continue
 
-                line_iter = 0
-                line_iter_test = 0
+                # train
+                if mode == 'train':
+                    train_log_loss_iteration[idx].append(iteration)
+                    train_log_loss[idx].append(attr(line, 'log_loss', float))
 
-                line_num = 0
-                for line in log_file:
-                    iteration = attr(line, 'iteration', str)
+                # test
+                # same test data
+                elif rand_seed == RAND_SEED:
+                    test_same_iteration[idx].append(iteration)
+                    for name, type in attributes:
+                        test_same[idx][name].append(attr(line, name, type))
 
-                    # skip invalid lines
-                    if iteration is None:
-                        continue
+                # random test data
+                else:
+                    test_changing_iteration[idx].append(iteration)
+                    for name, type in attributes:
+                        test_changing[idx][name].append(attr(line, name, type))
 
-                    # get attr values
-                    mode = attr(line, 'mode', str)
-                    rand_seed = attr(line, 'rand_seed', int)
+    # Plot logs
+    for idx in range(len(models)):
+        model_mva = moving_average(train_log_loss[idx], MVA_LENGTH_TRAIN)
+        plt.plot(train_log_loss_iteration[idx][MVA_LENGTH_TRAIN-1:], model_mva, '-')
+    plt.legend(models, loc='upper right')
+    plt.ylabel('Log loss (moving average over iterations ]x-%d, x])' % MVA_LENGTH_TRAIN)
+    plt.yscale('log')
+    plt.xlabel('Last iteration of the moving average')
+    plt.title('Train loss evolution over training')
+    plt.show()
 
-                    # train
-                    if mode == 'train':
-                        train_log_loss[index].append(attr(line, 'log_loss', float))
+    for idx in range(len(models)):
+        test_same_mva = moving_average(test_same[idx]['log_loss'], MVA_LENGTH_TEST_SAME)
+        plt.plot(test_same_iteration[idx][MVA_LENGTH_TEST_SAME-1:], test_same_mva, '-')
+    plt.legend(models, loc='upper right')
+    plt.ylabel('Log loss (moving average over %d last tests)' % MVA_LENGTH_TEST_SAME)
+    plt.yscale('log')
+    plt.xlabel('Last iteration of the moving average')
+    plt.title('Test loss evolution over training (same test data)')
+    plt.show()
 
-                    # test
-                    # same test data
-                    elif rand_seed == RAND_SEED:
-                        for name, type in attributes:
-                            test_same[index][name].append(attr(line, name, type))
+    for idx in range(len(models)):
+        test_changing_mva = moving_average(test_changing[idx]['log_loss'], MVA_LENGTH_TEST_CHANGING)
+        plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], test_changing_mva, '-')
+    plt.legend(models, loc='upper right')
+    plt.ylabel('Log loss (moving average over %d last tests)' % MVA_LENGTH_TEST_CHANGING)
+    plt.yscale('log')
+    plt.xlabel('Last iteration of the moving average')
+    plt.title('Test loss evolution over training (random test data)')
+    plt.show()
 
-                    # random test data
-                    else:
-                        for name, type in attributes:
-                            test_changing[index][name].append(attr(line, name, type))
+    # F-measure
+    for mod in ['', '_mod']:
+        P_mva = [[] for _ in range(len(models))]
+        R_mva = [[] for _ in range(len(models))]
+        F_measure_mva = [[] for _ in range(len(models))]
+        for idx in range(len(models)):
+            sum_TP = moving_average(test_changing[idx]['TP' + mod], MVA_LENGTH_TEST_CHANGING, average=False)
+            sum_FP = moving_average(test_changing[idx]['FP' + mod], MVA_LENGTH_TEST_CHANGING, average=False)
+            sum_FN = moving_average(test_changing[idx]['FN' + mod], MVA_LENGTH_TEST_CHANGING, average=False)
+            for i in range(len(sum_TP)):
+                P_mva[idx].append(sum_TP[i] / (sum_TP[i] + sum_FP[i]) if sum_TP[i] > 0 else 0)
+                R_mva[idx].append(sum_TP[i] / (sum_TP[i] + sum_FN[i]) if sum_TP[i] > 0 else 0)
+                F_val = 2 * P_mva[idx][i] * R_mva[idx][i] / (P_mva[idx][i] + R_mva[idx][i]) if P_mva[idx][i] > 0 else 0
+                F_measure_mva[idx].append(F_val)
 
-                    line_num += 1
-
-        for model, index in zip(models, range(len(models))):
-            model_mva = [sum(train_log_loss[index][i:i + mva_length]) / mva_length for i in
-                         range(len(train_log_loss[index]) - mva_length)]
-
-            plt.plot(range(len(model_mva)), model_mva, '-')
-
-        plt.legend(models, loc='upper right')
-        plt.ylabel('Log loss (moving average over 300 steps)')
-        plt.yscale('log')
-        plt.xlabel('Steps (5 iterations per steps)')
-        plt.title('Train loss evolution over training')
-
+        for idx in range(len(models)):
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], F_measure_mva[idx], '-')
+        plt.legend(models, loc='lower right')
+        plt.ylabel('F-measure%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
+        plt.xlabel('Training iteration of the last test')
+        plt.title('F-measure%s evolution over training' % mod)
         plt.show()
 
-        for model, index in zip(models, range(len(models))):
-            plt.plot(range(len(test_same[index]['log_loss'])), test_same[index]['log_loss'], '-')
-
-        plt.legend(models, loc='upper right')
-        plt.ylabel('Log loss')
-        plt.yscale('log')
-        plt.xlabel('Steps (50 training iterations per step)')
-        plt.title('Test loss evolution over training (same test data)')
-
+        for idx in range(len(models)):
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], P_mva[idx], '-')
+        plt.legend(models, loc='lower right')
+        plt.ylabel('Precision%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
+        plt.xlabel('Training iteration of the last test')
+        plt.title('Precision%s evolution over training' % mod)
         plt.show()
 
-        for model, index in zip(models, range(len(models))):
-            plt.plot(range(len(test_changing[index]['log_loss'])), test_changing[index]['log_loss'], '-')
-
-        plt.legend(models, loc='upper right')
-        plt.ylabel('Log loss')
-        plt.yscale('log')
-        plt.xlabel('Steps (50 training iterations per step)')
-        plt.title('Test loss evolution over training (random test data)')
-
+        for idx in range(len(models)):
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], R_mva[idx], '-')
+        plt.legend(models, loc='lower right')
+        plt.ylabel('Recall%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
+        plt.xlabel('Training iteration of the last test')
+        plt.title('Recall%s evolution over training' % mod)
         plt.show()
-
-        # F-measure
-        mva_length = 20
-        precision_mva = []
-        recall_mva = []
-        F_measure_mva = []
-
-        for mod in ['', '_mod']:
-            for index in range(len(models)):
-                TPs = test_same[index]['TP'+mod]
-                FPs = test_same[index]['FP'+mod]
-                TNs = test_same[index]['TN'+mod]
-                FNs = test_same[index]['FN'+mod]
-
-                sum_TP = [sum(TPs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
-                sum_FP = [sum(FPs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
-                sum_FN = [sum(FNs[i:i + mva_length]) for i in range(len(TPs) - mva_length)]
-                precision_mva.append([sum_TP[i] / (sum_TP[i] + sum_FP[i]) if sum_TP[i] > 0 else 0 for i in range(len(sum_TP))])
-                recall_mva.append([sum_TP[i] / (sum_TP[i] + sum_FN[i]) if sum_TP[i] > 0 else 0 for i in range(len(sum_TP))])
-                F_measure_mva.append([2 * precision_mva[-1][i] * recall_mva[-1][i] /
-                                      (precision_mva[-1][i] + recall_mva[-1][i]) if precision_mva[-1][i] > 0 else 0
-                                      for i in range(len(precision_mva[-1]))])
-
-            for index in range(len(models)):
-                plt.plot(range(len(F_measure_mva[index])), F_measure_mva[index], '-')
-            plt.legend(models, loc='lower right')
-            plt.ylabel('F-measure'+mod)
-            plt.xlabel('Steps (50 training iterations per step)')
-            plt.title('F-measure evolution over training (same test data)')
-            plt.show()
-
-            for index in range(len(models)):
-                plt.plot(range(len(precision_mva[index])), precision_mva[index], '-')
-            plt.legend(models, loc='lower right')
-            plt.ylabel('Precision'+mod)
-            plt.xlabel('Steps (50 training iterations per step)')
-            plt.title('Precision evolution over training (same test data)')
-            plt.show()
-
-            for index in range(len(models)):
-                plt.plot(range(len(recall_mva[index])), recall_mva[index], '-')
-            plt.legend(models, loc='lower right')
-            plt.ylabel('Recall'+mod)
-            plt.xlabel('Steps (50 training iterations per step)')
-            plt.title('Recall evolution over training (same test data)')
-            plt.show()

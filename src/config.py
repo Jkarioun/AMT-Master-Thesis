@@ -45,7 +45,7 @@ CREATE_OUTPUT_FOLDERS = True
 ####################
 
 ONSET = False
-KELZ_MODEL = False
+KELZ_MODEL = True
 KELZ_KERNEL = [3, 3]
 FIRST_LAYER_HARMONIC = False
 HARMONIC_RELATIVES = np.array([1 / 3, 1 / 2, 1, 2, 3])
@@ -73,6 +73,8 @@ TOTAL_BIN = NUM_PITCHES * BINS_PER_PITCH
 # data CQT #
 ############
 
+# If want to center the BINS_PER_PITCH first bins around A0
+# MIN_FREQ = librosa.note_to_hz('A0') * (2 ** (-1 / 2 + 1 / (2 * BINS_PER_PITCH)) / 12)
 MIN_FREQ = librosa.note_to_hz('A0') * (2 ** (-1 / BINS_PER_OCTAVE))
 SAMPLE_RESOLUTION = 16000
 CQT_WINDOW = 'hann'
