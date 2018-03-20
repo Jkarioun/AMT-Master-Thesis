@@ -21,3 +21,9 @@ if __name__ == '__main__':
             for i in range(100):
                 test(sess, model, placeholders, rand_seed=i, create_images=False, onset=ONSET,
                      folder=PATH_VISUALISATION + "testing/")
+
+    if TEST_ROC:
+        AUC, x, y = test_ROC(model, placeholders, 10, ONSET, RAND_SEED)
+        if not os.path.exists(PATH_DATA):
+            os.makedirs(PATH_DATA)
+        pickle.dump([AUC, x, y], open(PATH_DATA+"AUC.p", "wb"))

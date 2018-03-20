@@ -16,8 +16,9 @@ import logging
 import shutil
 import errno
 import time
+import pickle
 
-DISPLAY = True
+DISPLAY = False
 if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
@@ -28,10 +29,11 @@ if DISPLAY:
 ######################
 
 CONFIG_NAME = 'kelz_batch_norm_test'
-TRAINING = True
+TRAINING = False
 TESTING = False
-TRAIN_FROM_LAST = False
-show_images = True
+TRAIN_FROM_LAST = True
+TEST_ROC = True
+show_images = False
 RANDOM_DEBUG = 0
 RAND_SEED = 10
 NUM_BATCHES = 50000
@@ -100,11 +102,14 @@ PATH_DEBUG = "../data/debug/"
 PATH_MAPS = "../data/MAPS/"
 PATH_SRC = '../src'
 PATH_MAPS_PREPROCESSED = "../data/MAPS_PREPROCESSED/"
+
 PATH_VISUALISATION = PATH_OUTPUT + "visualisation/"
 PATH_TENSORBOARD = PATH_OUTPUT + "tensorboard/"
 PATH_LOGS = PATH_OUTPUT + "logs/"
 PATH_CHECKPOINTS = PATH_OUTPUT + "ckpt/"
 PATH_CODE = PATH_OUTPUT + "code/"
+PATH_DATA = PATH_OUTPUT + "data/"
+
 TRAIN_FILENAMES = []
 TEST_FILENAMES = []
 

@@ -103,6 +103,15 @@ def train(model, placeholders, num_batches=100, rand_seed=RAND_SEED, onset=False
 
 
 def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED):
+    """ Test a model and computes its AUC and ROC.
+
+    :param model: cfr. model.get_model output.
+    :param placeholders: cfr. model.get_model output.
+    :param num_test: number of music on which to test the model
+    :param onset: True if the model is about predicting onsets, else False.
+    :param rand_seed: batches random seed. Uses every batches whose seeds are in [rand_seed, rand_seed+num_test[.
+    :return: the AUC score, and the x and y vectors to plot the ROC.
+    """
     saver = tf.train.Saver()
     predictions = np.array([])
     truths = np.array([])
