@@ -18,7 +18,7 @@ import errno
 import time
 import pickle
 
-DISPLAY = False
+DISPLAY = True
 if DISPLAY:
     import librosa.display
     import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ if DISPLAY:
 # running parameters #
 ######################
 
-CONFIG_NAME = 'kelz_batch_norm_test'
+CONFIG_NAME = 'frame_weighted_kelz_LR0002_UP0_clip'
 TRAINING = False
 TESTING = False
 TRAIN_FROM_LAST = True
@@ -100,7 +100,7 @@ MAX_NOTE_LENGTH = FRAME_PER_SEC * 5
 PATH_OUTPUT = "../outputs/" + CONFIG_NAME + "/"
 PATH_DEBUG = "../data/debug/"
 PATH_MAPS = "../data/MAPS/"
-PATH_SRC = '../src'
+PATH_SRC = '../src/'
 PATH_MAPS_PREPROCESSED = "../data/MAPS_PREPROCESSED/"
 
 PATH_VISUALISATION = PATH_OUTPUT + "visualisation/"

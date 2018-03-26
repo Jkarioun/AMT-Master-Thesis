@@ -23,7 +23,7 @@ if __name__ == '__main__':
                      folder=PATH_VISUALISATION + "testing/")
 
     if TEST_ROC:
-        AUC, x, y = test_ROC(model, placeholders, 10, ONSET, RAND_SEED)
+        AUC, x, y = test_ROC(model, placeholders, 20, ONSET, RAND_SEED, True)
         if not os.path.exists(PATH_DATA):
             os.makedirs(PATH_DATA)
-        pickle.dump([AUC, x, y], open(PATH_DATA+"AUC.p", "wb"))
+        pickle.dump([AUC, x, y], open(PATH_DATA+"AUC_mod_20_"+str(RAND_SEED)+".p", "wb"))

@@ -102,14 +102,15 @@ def train(model, placeholders, num_batches=100, rand_seed=RAND_SEED, onset=False
         writer.close()
 
 
-def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED):
+def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED, mod=False):
     """ Test a model and computes its AUC and ROC.
 
     :param model: cfr. model.get_model output.
     :param placeholders: cfr. model.get_model output.
-    :param num_test: number of music on which to test the model
+    :param num_test: number of music on which to test the model.
     :param onset: True if the model is about predicting onsets, else False.
     :param rand_seed: batches random seed. Uses every batches whose seeds are in [rand_seed, rand_seed+num_test[.
+    :param mod: Take only predictions for which ground_weight>0.
     :return: the AUC score, and the x and y vectors to plot the ROC.
     """
     saver = tf.train.Saver()
@@ -118,7 +119,7 @@ def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED):
     with tf.Session() as sess:
         saver.restore(sess, PATH_CHECKPOINTS + CONFIG_NAME + ".ckpt")
         for i in range(num_test):
-            data_batch, ground_truth_frame, ground_truth_onset = next_batch(rand_seed+i, train=False)
+            data_batch, ground_truth_frame, ground_truth_onset = next_batch(rand_seed + i, train=False)
             ground_truth = ((ground_truth_onset if onset else ground_truth_frame) > 0).astype(int)
 
             ground_weights = onsets_and_frames_to_weights(ground_truth_onset, ground_truth_frame, onset=onset)
@@ -129,6 +130,6 @@ def test_ROC(model, placeholders, num_test, onset, rand_seed=RAND_SEED):
                                                          placeholders[GROUND_WEIGHTS]: ground_weights,
                                                          placeholders[IS_TRAINING]: False})
 
-            predictions = np.append(predictions, np.reshape(prediction, -1))
-            truths = np.append(truths, np.reshape(ground_truth, -1))
+            predictions = np.append(predictions, prediction[np.logical_or(not mod, ground_weights > 0)])
+            truths = np.append(truths, ground_truth[np.logical_or(not mod, ground_weights > 0)])
     return AUC(predictions, truths)

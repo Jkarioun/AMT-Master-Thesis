@@ -2,7 +2,8 @@
 
 from config import *
 
-if __name__ == '__main__':
+
+def log_vis():
     import math
     import matplotlib.pyplot as plt
     import re
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     # Plot logs
     for idx in range(len(models)):
         model_mva = moving_average(train_log_loss[idx], MVA_LENGTH_TRAIN)
-        plt.plot(train_log_loss_iteration[idx][MVA_LENGTH_TRAIN-1:], model_mva, '-')
+        plt.plot(train_log_loss_iteration[idx][MVA_LENGTH_TRAIN - 1:], model_mva, '-')
     plt.legend(models, loc='upper right')
     plt.ylabel('Log loss (moving average over iterations ]x-%d, x])' % MVA_LENGTH_TRAIN)
     plt.yscale('log')
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 
     for idx in range(len(models)):
         test_same_mva = moving_average(test_same[idx]['log_loss'], MVA_LENGTH_TEST_SAME)
-        plt.plot(test_same_iteration[idx][MVA_LENGTH_TEST_SAME-1:], test_same_mva, '-')
+        plt.plot(test_same_iteration[idx][MVA_LENGTH_TEST_SAME - 1:], test_same_mva, '-')
     plt.legend(models, loc='upper right')
     plt.ylabel('Log loss (moving average over %d last tests)' % MVA_LENGTH_TEST_SAME)
     plt.yscale('log')
@@ -110,7 +111,7 @@ if __name__ == '__main__':
 
     for idx in range(len(models)):
         test_changing_mva = moving_average(test_changing[idx]['log_loss'], MVA_LENGTH_TEST_CHANGING)
-        plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], test_changing_mva, '-')
+        plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING - 1:], test_changing_mva, '-')
     plt.legend(models, loc='upper right')
     plt.ylabel('Log loss (moving average over %d last tests)' % MVA_LENGTH_TEST_CHANGING)
     plt.yscale('log')
@@ -134,7 +135,7 @@ if __name__ == '__main__':
                 F_measure_mva[idx].append(F_val)
 
         for idx in range(len(models)):
-            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], F_measure_mva[idx], '-')
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING - 1:], F_measure_mva[idx], '-')
         plt.legend(models, loc='lower right')
         plt.ylabel('F-measure%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
         plt.xlabel('Training iteration of the last test')
@@ -142,7 +143,7 @@ if __name__ == '__main__':
         plt.show()
 
         for idx in range(len(models)):
-            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], P_mva[idx], '-')
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING - 1:], P_mva[idx], '-')
         plt.legend(models, loc='lower right')
         plt.ylabel('Precision%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
         plt.xlabel('Training iteration of the last test')
@@ -150,9 +151,30 @@ if __name__ == '__main__':
         plt.show()
 
         for idx in range(len(models)):
-            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING-1:], R_mva[idx], '-')
+            plt.plot(test_changing_iteration[idx][MVA_LENGTH_TEST_CHANGING - 1:], R_mva[idx], '-')
         plt.legend(models, loc='lower right')
         plt.ylabel('Recall%s (computed with %d last tests)' % (mod, MVA_LENGTH_TEST_CHANGING))
         plt.xlabel('Training iteration of the last test')
         plt.title('Recall%s evolution over training' % mod)
         plt.show()
+
+
+def compare_ROC():
+    models = [out for out in os.listdir('../outputs') if not out.startswith('onset')]
+    x = [[] for _ in range(len(models))]
+    y = [[] for _ in range(len(models))]
+    AUC = [0 for _ in range(len(models))]
+
+    for model, idx in zip(models, range(len(models))):
+        AUC[idx], x[idx], y[idx] = pickle.load(open('../outputs/' + model + '/data/AUC_mod_20_10.p', "rb"))
+        plt.plot(x[idx], y[idx], '-')
+        print(model + '\t\t' + str(AUC[idx]))
+
+    plt.legend(models)
+    plt.xlim(0, 200000)
+    plt.title('ROC_mod %d TN' % np.max(x))
+    plt.show()
+
+
+if __name__ == '__main__':
+    compare_ROC()
